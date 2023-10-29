@@ -1,0 +1,116 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "task_name": "Garbag",
+      "time_est": 0,
+      "time_act": "0.5",
+      "checked": true
+    },
+    {
+      "id": 3,
+      "task_name": "Gym",
+      "time_est": 0,
+      "time_act": "1",
+      "checked": true
+    },
+    {
+      "id": 4,
+      "task_name": "To do list - show all task",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": true
+    },
+    {
+      "id": 5,
+      "task_name": "angular tutorial",
+      "time_est": 0,
+      "time_act": "10",
+      "checked": true
+    },
+    {
+      "id": 6,
+      "task_name": "autonomous",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    },
+    {
+      "id": 7,
+      "task_name": "看懂documentation (借助GPT)",
+      "time_est": 0,
+      "time_act": "0.1",
+      "checked": true
+    },
+    {
+      "id": 8,
+      "task_name": "英语",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    },
+    {
+      "id": 10,
+      "task_name": "To do list - Editable box",
+      "time_est": 0,
+      "time_act": "3",
+      "checked": true
+    },
+    {
+      "id": 11,
+      "task_name": "To do list - crossing / check task",
+      "time_est": 0,
+      "time_act": "3",
+      "checked": true
+    },
+    {
+      "id": 12,
+      "task_name": "To do list - 重要程度分类、子项目",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    },
+    {
+      "id": 13,
+      "task_name": "To do list - 创建日期",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    },
+    {
+      "id": 14,
+      "task_name": "To do list - div 格式 100%",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    },
+    {
+      "id": 15,
+      "task_name": "创建服务器",
+      "time_est": 0,
+      "time_act": "1",
+      "checked": true
+    },
+    {
+      "id": 16,
+      "task_name": "https://angular.io/guide/styleguide",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    },
+    {
+      "id": 17,
+      "task_name": "GPT API",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    },
+    {
+      "id": 18,
+      "task_name": "GPT 语音输入",
+      "time_est": 0,
+      "time_act": 0,
+      "checked": false
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+/* Style for the chat container */
+.chat-container {
+    height: 95vh; /* 与页面同高 */
+    width: 100%;
+    margin: 0; /* Center the chat box horizontally */
+    background-color: #b9b9b9; /* Background color for the chat box */
+    font-size: x-large;
+  }
+  
+  
+  .scroll-container {
+    position: absolute;
+    bottom: 168px;
+    top: 50px;
+    width: 100%;
+    overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
+  }
+
+  /* Style for user messages */
+  .chat-container p.user {
+    color: #282828; /* White text for user messages */
+    padding: 8px; /* Padding inside the user message bubble */
+    margin: 5px; /* Margin to separate user messages */
+  }
+  
+  /* Style for bot messages */
+  .chat-container p.bot {
+    background-color: #ffffff; /* Green background for bot messages */
+    color: #232323; /* White text for bot messages */
+    padding: 8px; /* Padding inside the bot message bubble */
+    border-radius: 8px; /* Rounded corners for bot message bubble */
+    margin: 5px ; /* Margin to separate bot messages */
+  }
+
+  .bottom-area-input {
+    position: absolute;
+    bottom: 0;
+    height: 168px;
+    width: 100%;
+    padding: 19px;
+    background-color: #1ec4d0; /* 设置底部 div 的背景颜色 */
+    color: #fff;       /* 文本颜色为白色 */
+  }

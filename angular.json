@@ -54,6 +54,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/bulma/css/bulma.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -101,6 +102,13 @@
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "mini_angular_site:build"
+          }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {
+            "version": 2,
+            "browserTarget": "mini_angular_site:build:production"
           }
         }
       }

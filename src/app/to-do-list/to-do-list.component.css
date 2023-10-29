@@ -1,0 +1,11 @@
+.checked {
+  text-decoration: line-through;
+}
+
+
+.c_button{
+  width: 70%;
+  height: 60px; 
+  background-color: transparent;
+  border: none;
+}

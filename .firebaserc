@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "miniauglarsite"
+  },
+  "targets": {
+    "miniauglarsite": {
+      "hosting": {
+        "mini_angular_site": [
+          "miniauglarsite"
+        ]
+      }
+    }
+  }
+}
