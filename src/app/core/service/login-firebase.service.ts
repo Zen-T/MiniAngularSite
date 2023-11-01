@@ -3,6 +3,10 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 import { Firestore } from '@firebase/firestore/dist/lite';
+import * as firebaseui from 'firebaseui';
+import * as firebaseAuth from 'firebase/auth';
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -36,17 +40,16 @@ export class LoginFirebaseService {
     };
 
     const app = initializeApp(firebaseConfig);
-
     const auth = getAuth(app);
-    // const db = getFirestore(app);
-    // const todosCol = collection(db, 'todos');
-    // onAuthStateChanged (auth, user =>{
-    //   if (user != null) {
-    //     console.log('Logged in!');
-    //   } else {
-    //     console.log('No user');
-    //   }
-    // });
+    const db = getFirestore(app);
+    const todosCol = collection(db, 'todos');
+    onAuthStateChanged (auth, user =>{
+      if (user != null) {
+        console.log('Logged in!');
+      } else {
+        console.log('No user');
+      }
+    });
   }
   db(db: any, arg1: string) {
     throw new Error('Method not implemented.');

@@ -12,18 +12,27 @@ import { getAuth } from 'firebase/auth';
     <h1 (click)="check()">Welcome to My Awesome App</h1>
     <div id="firebaseui-auth-container"></div>
     <div id="loader">Loading...</div>
+    
+
       `,
       styles: [
       ]
 })
 export class LoginComponent {
-  
+  name!: string;
+  email!: string;
+  message!: string;
+
+  submitForm() {
+    const message = `my name is ${this.name}`;
+    alert(message);
+  }
 
 
   constructor(private loginService: LoginFirebaseService){};
+  ngOnInit(){}
 
   check(){
-    //const ui = new firebaseui.auth.AuthUI(getAuth());
     this.loginService.checkState();
     console.log('Log check!');
 
