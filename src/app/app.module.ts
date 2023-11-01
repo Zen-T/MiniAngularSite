@@ -18,6 +18,7 @@ import { EditableModule } from '@ngneat/edit-in-place';
 import { ReactiveFormsModule} from '@angular/forms';
 import { CoreModule } from './core/core.module';
 import { BotComponent } from './bot/bot.component';
+//import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { BotComponent } from './bot/bot.component';
     MindMapComponent,
     ToDoListComponent,
     AppComponent,
-    BotComponent,    
+    BotComponent,
+    //LoginComponent,    
   ],
   imports: [
     BrowserModule,
@@ -40,7 +42,7 @@ import { BotComponent } from './bot/bot.component';
     EditableModule,
     EditableModule,
     ReactiveFormsModule,
-    CoreModule
+    CoreModule,
   ],
   providers: [
   ],

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { ChatService } from '../core/service/chat.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { empty } from 'rxjs';
 
 @Component({
   selector: 'app-bot',

@@ -8,6 +8,7 @@ import { MindMapComponent } from './mind-map/mind-map.component';
 import { Reconstruct3dComponent } from './reconstruct3d/reconstruct3d.component';
 import { ToDoListComponent } from './to-do-list/to-do-list.component';
 import { BotComponent } from './bot/bot.component';
+import { LoginComponent } from './login/login.component';
 
 const routes: Routes = [
   {
@@ -48,6 +49,10 @@ const routes: Routes = [
   {
     path: 'bot',
     component: BotComponent
+  },
+  {
+    path: 'login',
+    component: LoginComponent
   },
 ];
 

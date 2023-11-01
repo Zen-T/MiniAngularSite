@@ -4,6 +4,13 @@ import { Component } from '@angular/core';
   selector: 'app-header',
   template: `
     <div class="navbar is-dark">
+      <!-- login -->
+      <div>
+        <a class="" routerLink="login">
+          login
+        </a>
+      </div>
+
       <!-- logo -->
       <div class="navbar-brand">
         <a class="navbar-item" routerLink="">
