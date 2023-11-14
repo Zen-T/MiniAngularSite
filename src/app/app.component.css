@@ -1,0 +1,18 @@
+/* Style for the chat container */
+
+.app-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  height: 52px;
+}
+
+.app-content {
+  flex: 1;
+}
+
+.app-footer {
+}

@@ -4,13 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-header',
   template: `
     <div class="navbar is-dark">
-      <!-- login -->
-      <div>
-        <a class="" routerLink="login">
-          login
-        </a>
-      </div>
-
+      
       <!-- logo -->
       <div class="navbar-brand">
         <a class="navbar-item" routerLink="">
@@ -18,6 +12,11 @@ import { Component } from '@angular/core';
         </a>
       </div>
 
+      <!-- login -->
+      <div>
+        <a class="" routerLink="login">login</a>
+      </div>
+      
       <!-- menu -->
       <div class="navbar-menu">
         <div class="navbar-end">
@@ -32,6 +31,8 @@ import { Component } from '@angular/core';
           <a class="navbar-item" routerLink="bot">聊天</a>
         </div>
       </div>
+
+
     </div>
   `,
   styles: [

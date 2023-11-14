@@ -3,15 +3,27 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-root',
   template: `
-    <!--header-->
-    <app-header></app-header>
+    <link rel="stylesheet" href="app.component.css">
 
-    <!-- routes get injected here -->
-    <router-outlet></router-outlet>
+    <div class="app-page">
+
+      <!--header-->
+      <div class="app-header">
+      <app-header></app-header>
+      </div>
+
+      <!-- routes get injected here -->
+      <div class="app-content">
+      <router-outlet></router-outlet>
+      </div>
+
+    </div>
 
     <!-- footer-->
-    <app-footer></app-footer>
-    
+    <div class="app-footer">
+      <app-footer></app-footer>
+    </div>
+
   `,
   styles: []
 })

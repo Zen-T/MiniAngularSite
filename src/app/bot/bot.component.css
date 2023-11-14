@@ -1,43 +1,111 @@
 /* Style for the chat container */
 .chat-container {
-    height: 95vh; /* 与页面同高 */
-    width: 100%;
-    margin: 0; /* Center the chat box horizontally */
-    background-color: #b9b9b9; /* Background color for the chat box */
-    font-size: x-large;
-  }
-  
-  
-  .scroll-container {
-    position: absolute;
-    bottom: 168px;
-    top: 50px;
-    width: 100%;
-    overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
-  }
+  height: 100%;
+  width:100%;
+  background-color: #c3c3c3; /* Background color for the chat box */
+  font-size: x-large;
+  display: flex; /* 子元素flex横向排列 */
+}
 
-  /* Style for user messages */
-  .chat-container p.user {
-    color: #282828; /* White text for user messages */
-    padding: 8px; /* Padding inside the user message bubble */
-    margin: 5px; /* Margin to separate user messages */
-  }
+.chat-list {
+  height: 100%;
+  width: 20%;
+  background-color: #74c7c8bd; /* Background color for the chat box */
+  padding: 10px; /* Padding inside the user message bubble */
+  overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
+}
   
-  /* Style for bot messages */
-  .chat-container p.bot {
-    background-color: #ffffff; /* Green background for bot messages */
-    color: #232323; /* White text for bot messages */
-    padding: 8px; /* Padding inside the bot message bubble */
-    border-radius: 8px; /* Rounded corners for bot message bubble */
-    margin: 5px ; /* Margin to separate bot messages */
-  }
 
-  .bottom-area-input {
-    position: absolute;
-    bottom: 0;
-    height: 168px;
-    width: 100%;
-    padding: 19px;
-    background-color: #1ec4d0; /* 设置底部 div 的背景颜色 */
-    color: #fff;       /* 文本颜色为白色 */
-  }
+.chat-list p.addNew {
+  color: #000000de; /* White text for user messages */
+  background-color: #ffffff82; /* Green background for bot messages */
+  padding: 18px; /* Padding inside the bot message bubble */
+  margin: 8px ; /* Margin to separate bot messages */
+  border-radius: 39px; /* Rounded corners for bot message bubble */
+  align-items: center;
+  cursor: pointer;
+}
+
+
+.chat-list p.title {
+  color: #ded366de; /* White text for user messages */
+  background-color: #71716ff0; /* Green background for bot messages */
+  padding: 13px; /* Padding inside the bot message bubble */
+  margin: 8px ; /* Margin to separate bot messages */
+  border-radius: 9px; /* Rounded corners for bot message bubble */
+  align-items: center;
+  max-height: 3.9rem;
+  overflow: hidden;
+  word-break: break-all;
+  cursor: pointer;
+}
+
+.chat-list p.selected {
+  color: #b2a200; /* White text for user messages */
+  background-color: #f1f1f1; /* Green background for bot messages */
+  padding: 13px; /* Padding inside the bot message bubble */
+  margin: 8px ; /* Margin to separate bot messages */
+  border-radius: 9px; /* Rounded corners for bot message bubble */
+  align-items: center;
+  max-height: 3.9rem;
+  overflow: hidden;
+  word-break: break-all;
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.125;
+}
+
+
+.current-chat{
+  height: 100%;
+  flex: 1; /* 填满剩余空间 */
+  display: flex; /* 元素flex排列 */
+  flex-direction: column; /* flex纵向排列 */
+}
+
+.error-chat{
+}
+
+.chat-history {
+  width: 100%;
+  overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
+  flex: 1; /* 占满warining和input外的所有空间 */
+}
+
+/* Style for user messages */
+.chat-history p.user {
+  color: #393939; /* White text for user messages */
+  padding: 8px; /* Padding inside the user message bubble */
+  margin: 5px; /* Margin to separate user messages */
+}
+  
+/* Style for bot messages */
+.chat-history p.bot {
+  background-color: #ffffffd1; /* Green background for bot messages */
+  color: #393939; /* White text for bot messages */
+  border-radius: 8px; /* Rounded corners for bot message bubble */
+  padding: 8px; /* Padding inside the bot message bubble */
+  margin: 5px ; /* Margin to separate bot messages */
+}
+
+/* user message input area */
+.message-input-container {
+  width: 100%;
+  padding: 6px;
+  background-color: #1ec4d0; /* 设置底部 div 的背景颜色 */
+  color: #fff;       /* 文本颜色为白色 */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+
+.input-box {
+  flex: 1; /* 占满button外的所有空间 */
+  display: inline-block;
+}
+
+.sent-button {
+  display: inline-block;
+}

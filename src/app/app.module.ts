@@ -18,7 +18,13 @@ import { EditableModule } from '@ngneat/edit-in-place';
 import { ReactiveFormsModule} from '@angular/forms';
 import { CoreModule } from './core/core.module';
 import { BotComponent } from './bot/bot.component';
-//import { LoginComponent } from './login/login.component';
+import { LoginComponent } from './login/login.component';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+
 
 @NgModule({
   declarations: [
@@ -32,7 +38,7 @@ import { BotComponent } from './bot/bot.component';
     ToDoListComponent,
     AppComponent,
     BotComponent,
-    //LoginComponent,    
+    LoginComponent,    
   ],
   imports: [
     BrowserModule,
@@ -43,6 +49,19 @@ import { BotComponent } from './bot/bot.component';
     EditableModule,
     ReactiveFormsModule,
     CoreModule,
+    // provideFirebaseApp(() => initializeApp({"projectId":"miniauglarsite","appId":"1:190759352038:web:014b45b3a89fcc6d7aad27","storageBucket":"miniauglarsite.appspot.com","apiKey":"AIzaSyASITCJVAu03AZXoBupZ9EH4uU3iTKjuDU","authDomain":"miniauglarsite.firebaseapp.com","messagingSenderId":"190759352038","measurementId":"G-1RNFPJVCHQ"})),
+    // provideAuth(() => getAuth()),
+    // provideFirestore(() => getFirestore()),
+    // AngularFireModule.initializeApp({
+    //   apiKey: "AIzaSyASITCJVAu03AZXoBupZ9EH4uU3iTKjuDU",
+    //   authDomain: "miniauglarsite.firebaseapp.com",
+    //   projectId: "miniauglarsite",
+    //   storageBucket: "miniauglarsite.appspot.com",
+    //   messagingSenderId: "190759352038",
+    //   appId: "1:190759352038:web:7edf1ec4be1b95467aad27",
+    //   measurementId: "G-X19GYVGG7H"
+    // }),
+    // AngularFireAuthModule,
   ],
   providers: [
   ],
