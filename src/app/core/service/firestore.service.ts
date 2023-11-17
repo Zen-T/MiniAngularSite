@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { getFirestore } from "firebase/firestore";
+import { deleteDoc, getFirestore } from "firebase/firestore";
 import { collection, addDoc } from "firebase/firestore"; 
 import { AuthFirebaseService } from './auth-firebase.service';
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
 import { OnInit } from "@angular/core";
 
 @Injectable({
@@ -132,6 +132,37 @@ export class FirestoreService implements OnInit{
     return doc_data;
   }
 
-
   // Remove doc
+  async removeDocDate(docPath: string){
+    // get user ID
+    const userID = await this.authService.getUserID();
+
+    // if user exsit
+    if (userID != null){
+
+      // delete doc
+      const docRef = doc(this.db, "Users", userID, docPath);
+      await deleteDoc(docRef);
+
+    } else{
+      console.log("Can not remove doc: No user logged in");
+    }
+  }
+
+  // Delete field
+  async deleteField(docPath: string, field_name: string){
+     // get user ID
+     const userID = await this.authService.getUserID();
+
+    // if user exsit
+    if (userID != null){
+
+      // .delete field
+      const docRef = doc(this.db, "Users", userID, docPath);
+      await updateDoc(docRef, {[field_name]: deleteField()});
+
+    } else{
+      console.log("Can not delete field: No user logged in");
+    }
+  }
 }

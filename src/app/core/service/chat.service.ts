@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FirestoreService } from './firestore.service';
+import { doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
 
 @Injectable({
   providedIn: 'root'
@@ -103,4 +104,21 @@ export class ChatService {
   }
 
   // Remove a chat history
+  async removeChatHistory(chat_id: string){
+
+    // .form doc path bsae on given document ID
+    const docPath = "/Apps/chatApp/ChatData/" + chat_id;
+
+    // .remove doc from database
+    await this.storeService.removeDocDate(docPath).then(async()=>{
+
+      // .form field path
+      const fieldPath = "/Apps/chatApp/";
+
+      // .delete related chat in chat list
+      await this.storeService.deleteField(fieldPath, chat_id);
+    })
+
+  }
+
 }

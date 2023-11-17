@@ -18,10 +18,18 @@ import { FirestoreService } from '../core/service/firestore.service';
       <div>
         <p (click)="startNewChat()" class="addNew"> + 新话题 </p>
       </div>
-      <div *ngFor="let chatInfo of chat_lists">
-        <p (click)="retrieveChat(chatInfo.id)" *ngIf="chatInfo.id !== chat_ID" class="title">{{ chatInfo.title }}</p>
-        <p (click)="retrieveChat(chatInfo.id)" *ngIf="chatInfo.id === chat_ID" class="selected">{{ chatInfo.title }}</p>
-      </div>
+      <ol>
+        <li *ngFor="let chatInfo of chat_lists" class="chat-title">
+          <div *ngIf="chatInfo.id === chat_ID" class="title-pri">
+            <p (click)="retrieveChat(chatInfo.id)" class="title-name">{{ chatInfo.title }}</p>
+            <img (click)="removeChat(chatInfo.id)" src="assets/icon/trashBin.png" class="del">
+          </div>
+          <div  *ngIf="chatInfo.id !== chat_ID" class="title-sec">
+            <p (click)="retrieveChat(chatInfo.id)" class="title-name">{{ chatInfo.title }}</p>
+            <img (click)="removeChat(chatInfo.id)" src="assets/icon/trashBin.png" class="del">
+          </div>
+        </li>
+      </ol>
     </div>
 
     <!-- current chat -->
@@ -179,4 +187,12 @@ export class BotComponent implements OnInit{
     this.retrieveChatList();
   }
 
+  // remove chat history
+  async removeChat(chat_id: string){
+    // remove chat history bsae on given document ID
+    await this.chatService.removeChatHistory(chat_id);
+    
+    // start new chat
+    await this.startNewChat();
+  }
 }

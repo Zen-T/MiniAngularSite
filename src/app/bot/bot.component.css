@@ -26,36 +26,49 @@
   cursor: pointer;
 }
 
-
-.chat-list p.title {
-  color: #ded366de; /* White text for user messages */
-  background-color: #71716ff0; /* Green background for bot messages */
-  padding: 13px; /* Padding inside the bot message bubble */
-  margin: 8px ; /* Margin to separate bot messages */
-  border-radius: 9px; /* Rounded corners for bot message bubble */
-  align-items: center;
-  max-height: 3.9rem;
-  overflow: hidden;
-  word-break: break-all;
-  cursor: pointer;
+.chat-title {
+  font-size: x-large;
+  list-style: none;
 }
 
-.chat-list p.selected {
+.chat-title div.title-pri {
+  display: flex;
   color: #b2a200; /* White text for user messages */
   background-color: #f1f1f1; /* Green background for bot messages */
   padding: 13px; /* Padding inside the bot message bubble */
   margin: 8px ; /* Margin to separate bot messages */
   border-radius: 9px; /* Rounded corners for bot message bubble */
-  align-items: center;
   max-height: 3.9rem;
   overflow: hidden;
   word-break: break-all;
   cursor: pointer;
-  font-size: 2rem;
-  font-weight: 500;
-  line-height: 1.125;
 }
 
+.chat-title div.title-sec {
+  display: flex;
+  color: #ded366de; /* White text for user messages */
+  background-color: #71716ff0; /* Green background for bot messages */
+  padding: 13px; /* Padding inside the bot message bubble */
+  margin: 8px ; /* Margin to separate bot messages */
+  border-radius: 9px; /* Rounded corners for bot message bubble */
+  max-height: 3.9rem;
+  overflow: hidden;
+  word-break: break-all;
+  cursor: pointer;
+}
+
+.chat-title p.title-name {
+  flex: 1;
+}
+
+.chat-title img.del {
+  width: 13%;
+  margin: 3px ; /* Margin to separate bot messages */
+  padding: 3px;
+  align-items: center;
+  max-height: 3.9rem;
+  cursor: pointer;
+}
 
 .current-chat{
   height: 100%;
