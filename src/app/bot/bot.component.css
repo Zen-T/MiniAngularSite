@@ -71,10 +71,10 @@
 }
 
 .current-chat{
-  height: 100%;
   flex: 1; /* 填满剩余空间 */
   display: flex; /* 元素flex排列 */
   flex-direction: column; /* flex纵向排列 */
+  height: 100%;
 }
 
 .error-chat{
@@ -83,7 +83,9 @@
 .chat-history {
   width: 100%;
   overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
-  flex: 1; /* 占满warining和input外的所有空间 */
+  /* flex: 1; 占满warining和input外的所有空间 */
+  height: 100%;
+  justify-content: space-between;
 }
 
 /* Style for user messages */
