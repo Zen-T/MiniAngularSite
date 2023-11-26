@@ -98,7 +98,9 @@ export class ChatService {
        chat_list.push({ id: chatInfo[0], title: chatInfo[1].title, timeStamp: chatInfo[1].timestamp});
       });
     }
-
+    chat_list.sort((a, b) => {
+      return b.timeStamp.seconds - a.timeStamp.seconds
+    })
     return chat_list;
   }
 
