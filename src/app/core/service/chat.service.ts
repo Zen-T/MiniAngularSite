@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FirestoreService } from './firestore.service';
-import { doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +8,7 @@ import { doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp } from "fi
 
 export class ChatService {
   //"https://13.209.7.147/getOpenAI"//"https://middleware-express-1414c4452662.herokuapp.com/getOpenAI"//"https://expressmiddleware.web.app/getOpenAI";//"http://127.0.0.1:5000/getOpenAI" //"https://api.openai.com/v1/chat/completions";
-  private apiUrl = "https://13.209.7.147/chatApi"
+  private apiUrl = "https://13.125.236.55/chatApi"
 
   constructor(
     private http: HttpClient, 
@@ -39,7 +38,7 @@ export class ChatService {
     // for new chat
     if (chat_ID == ""){
       // save chat in new doc and return doc id
-      doc_Id = await this.storeService.addDocInColl("Apps/chatApp/ChatData", chat_history);
+      doc_Id = await this.storeService.addDocInColl("Apps/chatApp/ChatData", JSON.parse(JSON.stringify({'doc_content': chat_history})));
     } else{ // for exsited chat 
       try{
         // update chat history
@@ -83,7 +82,7 @@ export class ChatService {
   }
 
   // Retrieve user's chat list
-   async retrieveChatList():Promise<any[]>{
+  async retrieveChatList():Promise<any[]>{
 
     // .form path
     const docPath = "/Apps/chatApp";
@@ -110,7 +109,7 @@ export class ChatService {
     const docPath = "/Apps/chatApp/ChatData/" + chat_id;
 
     // .remove doc from database
-    await this.storeService.removeDocDate(docPath).then(async()=>{
+    await this.storeService.removeDoc(docPath).then(async()=>{
 
       // .form field path
       const fieldPath = "/Apps/chatApp/";

@@ -82,7 +82,7 @@
       "task_name": "To do list - div 格式 100%",
       "time_est": 0,
       "time_act": 0,
-      "checked": false
+      "checked": true
     },
     {
       "id": 15,
@@ -103,7 +103,7 @@
       "task_name": "GPT API",
       "time_est": 0,
       "time_act": 0,
-      "checked": false
+      "checked": true
     },
     {
       "id": 18,

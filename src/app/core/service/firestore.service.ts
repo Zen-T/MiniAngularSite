@@ -1,9 +1,8 @@
-import { Injectable } from '@angular/core';
-import { deleteDoc, getFirestore } from "firebase/firestore";
-import { collection, addDoc } from "firebase/firestore"; 
-import { AuthFirebaseService } from './auth-firebase.service';
-import { doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
 import { OnInit } from "@angular/core";
+import { Injectable } from '@angular/core';
+import { AuthFirebaseService } from './auth-firebase.service';
+import { doc, collection, query, where, QueryConstraint, deleteDoc, getFirestore } from "firebase/firestore";
+import { setDoc, addDoc, getDocs, getDoc, updateDoc, deleteField, serverTimestamp, orderBy } from "firebase/firestore";
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +17,8 @@ export class FirestoreService implements OnInit{
   // connect firebase Auth with a firebase App
   db = getFirestore(this.authService.app);
   
-  // !(doc_content need to clarify?)! add an Doc to an Coll, return Doc Id if success, null if error
-  async addDocInColl(collPath: string, doc_content: any[]): Promise<string>{
+  // add an Doc to an Coll, return Doc Id if success, null if error
+  async addDocInColl(collPath: string, doc_content: JSON): Promise<string>{
     let doc_Id: string = "";
 
     // get user ID
@@ -30,7 +29,7 @@ export class FirestoreService implements OnInit{
       try {
         // add doc to a collection with auto gen doc id
         const collRef = collection(this.db, "Users", userID, collPath);
-        const docRef = await addDoc(collRef, {doc_content});
+        const docRef = await addDoc(collRef, JSON.parse(JSON.stringify(doc_content)));
 
         // log doc id
         doc_Id = docRef.id;
@@ -107,6 +106,29 @@ export class FirestoreService implements OnInit{
   }
 
   // Retrieve doc data
+  async retrieveDocs(collPath: string, queryConstraints?: QueryConstraint): Promise<any[]>{
+    let docs_data: any[] = [];
+
+    // get user ID
+    const userID = await this.authService.getUserID();
+    
+    // if user exsit
+    if (userID != null){
+      // qurey
+      let q = query(collection(this.db, "Users", userID, collPath));
+      if (typeof queryConstraints !== 'undefined'){
+        q = query(collection(this.db, "Users", userID, collPath), queryConstraints);
+      };
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        docs_data.push({[doc.id]: doc.data()});
+      })
+    }
+
+    return docs_data;
+  }
+
+  // Retrieve doc data
   async retrieveDocDate(docPath: string): Promise<any>{
     let doc_data = null;
 
@@ -133,7 +155,7 @@ export class FirestoreService implements OnInit{
   }
 
   // Remove doc
-  async removeDocDate(docPath: string){
+  async removeDoc(docPath: string){
     // get user ID
     const userID = await this.authService.getUserID();
 

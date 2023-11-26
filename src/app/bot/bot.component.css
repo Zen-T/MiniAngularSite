@@ -78,6 +78,26 @@
 }
 
 .error-chat{
+  display: flex; /* 元素flex排列 */
+  flex-direction: column;
+}
+
+.message-body{
+  padding: 0.5rem 1.5rem;
+}
+
+.message-action{
+  display: flex;
+  justify-content: center;
+  padding-bottom: 0.5rem;
+}
+
+.error-url-button{
+  background-color: #f6d300a3;
+  color: #3f3f3f9e !important;
+  text-decoration: none !important;
+  padding: 18px;
+  border-radius: 13px;
 }
 
 .chat-history {
@@ -112,15 +132,16 @@
   color: #fff;       /* 文本颜色为白色 */
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* 水平居中 */
+  justify-content: space-around; /* 水平居中 */
   align-items: center; /* 垂直居中 */
 }
 
 .input-box {
   flex: 1; /* 占满button外的所有空间 */
-  display: inline-block;
+  /* display: inline-block; */
 }
 
-.sent-button {
-  display: inline-block;
+.bottom-sent-message {
+  width: 100px;
+  /* display: inline-block; */
 }

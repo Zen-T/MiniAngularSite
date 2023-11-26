@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ChatService } from '../core/service/chat.service';
 import { AuthFirebaseService } from '../core/service/auth-firebase.service';
 import { OnInit } from "@angular/core";
-import { onIdTokenChanged } from 'firebase/auth'
+import { onIdTokenChanged } from 'firebase/auth';
 import { doc, onSnapshot } from "firebase/firestore";
 import { FirestoreService } from '../core/service/firestore.service';
 
@@ -18,8 +18,9 @@ import { FirestoreService } from '../core/service/firestore.service';
       <div>
         <p (click)="startNewChat()" class="addNew"> + 新话题 </p>
       </div>
-      <ol>
+      <ul>
         <li *ngFor="let chatInfo of chat_lists" class="chat-title">
+          <!-- highlight selected chat -->
           <div *ngIf="chatInfo.id === chat_ID" class="title-pri">
             <p (click)="retrieveChat(chatInfo.id)" class="title-name">{{ chatInfo.title }}</p>
             <img (click)="removeChat(chatInfo.id)" src="assets/icon/trashBin.png" class="del">
@@ -29,7 +30,7 @@ import { FirestoreService } from '../core/service/firestore.service';
             <img (click)="removeChat(chatInfo.id)" src="assets/icon/trashBin.png" class="del">
           </div>
         </li>
-      </ol>
+      </ul>
     </div>
 
     <!-- current chat -->
@@ -43,6 +44,9 @@ import { FirestoreService } from '../core/service/firestore.service';
         <div class="message-body">
           {{ errorMessage | json }}
         </div>
+        <div class="message-action">
+          <a [href]='errorUrl' class="error-url-button">跳转至服务器</a>
+        </div>
       </div>
 
       <!-- chat history -->
@@ -51,6 +55,7 @@ import { FirestoreService } from '../core/service/firestore.service';
           <p *ngIf="message.role === 'user'" class="user">你: {{ message.content }}</p>
           <p *ngIf="message.role === 'assistant'" class="bot">GPT: {{ message.content }}</p>
         </div>
+        <p *ngIf="wait" class="bot">GPT: <mat-progress-bar mode="buffer"></mat-progress-bar></p>
       </div>
 
       <!-- chat input -->
@@ -67,16 +72,14 @@ import { FirestoreService } from '../core/service/firestore.service';
         </div>
 
         <button 
-          class="sent-button"
           type="submit"
-          class="bottom-sent-message button is-large is-warning" 
+          class="button is-large is-warning bottom-sent-message" 
           [disabled]="chatBox.invalid || wait"
           >
           发送
         </button>
       </form>
     </div>
-    
   </div>
 
   `,
@@ -92,6 +95,7 @@ export class BotComponent implements OnInit{
 
   wait!: boolean;
   errorMessage!: any;
+  errorUrl!: any;
   
   // Construct service
   constructor(
@@ -108,13 +112,14 @@ export class BotComponent implements OnInit{
     this.chat_lists = null;
     this.wait = false;
     this.errorMessage = null;
+    this.errorUrl = null;
 
     // subscribe to login state
     onIdTokenChanged(this.authService.auth, (user) => {
       // user logged in
       if (user) {
         // subscribe database chat list
-        const docRef = doc(this.storeService.db, "Users", user.uid, "/Apps/chatApp")
+        const docRef = doc(this.storeService.db, "Users", user.uid, "/Apps/chatApp");
         onSnapshot(docRef, (doc) => {
           // load chat list
           this.retrieveChatList();
@@ -129,6 +134,8 @@ export class BotComponent implements OnInit{
       }
     });
   }
+
+  
   
   // Clear pop up error message
   clearErrorMess(){
@@ -151,16 +158,17 @@ export class BotComponent implements OnInit{
     this.chatService.sentMessage(this.chat_history)
     .subscribe(
       async (response: any) => {
+        // release wait
+        this.wait = false;
         // push respond to local chat_history var
         this.chat_history.push({ role: 'assistant', content: response.choices[0].message.content });
         // save chat history to database
         this.chat_ID = await this.chatService.saveChat(this.chat_ID, this.chat_history);
-        // release wait
-        this.wait = false;
       },
       (error: any) => {
         // show if error
         this.errorMessage = error;
+        this.errorUrl = error.url;
       });
   }
 

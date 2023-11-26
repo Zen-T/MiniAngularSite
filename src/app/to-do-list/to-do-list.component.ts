@@ -1,11 +1,13 @@
 //start json server: "npx json-server --watch db.json"
-
 import { Component, OnInit } from '@angular/core';
-import { CrudService } from '../core/service/crud.service';
+import { onIdTokenChanged } from 'firebase/auth';
+import { AuthFirebaseService } from '../core/service/auth-firebase.service';
+import { FirestoreService } from '../core/service/firestore.service';
+import { doc, onSnapshot } from "firebase/firestore";
+
+import { FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { ToDoListService } from '../core/service/to-do-list.service';
 import { Task } from './model/task';
-import { EditableModule } from '@ngneat/edit-in-place';
-import { FormControl } from '@angular/forms';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 @Component({
   
@@ -28,7 +30,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
                   type="text" 
                   placeholder="New Task" 
                   name="newTask"
-                  [(ngModel)]="newTaskName"
+                  [(ngModel)]="newTask.name"
                   #newTaskInput = "ngModel"
                   required>
               </div>
@@ -47,32 +49,22 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
         </div>
         
         <!-- show all tasks -->
-
-        <div id="panel" *ngIf="allTasks">
-          <div  
-            class="panel-block" 
-            *ngFor="let task of allTasks | async" 
-            id="{{task.id}}"
-            style="width: 30;
-            justify-content: space-between;
-            "
-            >
+        <div id="panel" *ngIf="taskArr">
+          <div *ngFor="let task of taskArr" id="{{task.id}}" class="panel-block" >
 
             <span >
-
               <!-- show editable task name -->
               <editable
                 (click)="assign_old_value(task)"
-                (save)="onEdit(edited_task)" >
+                (save)="onEdit(updated_task)" >
 
-                <ng-template viewMode><div [ngClass]="{'checked':task.checked}">{{ task.task_name }}</div></ng-template>
+                <ng-template viewMode><div [ngClass]="{'checked':task.done}">{{ task.name }}</div></ng-template>
 
                 <ng-template editMode>
                   <input 
                     editableOnEnter 
                     editableOnEscape 
-                    [(ngModel)]="edited_task.task_name"
-                    />
+                    [(ngModel)]="updated_task.name"/>
                 </ng-template>
               </editable>
 
@@ -80,7 +72,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
               <div>
               <editable
                 (click)="assign_old_value(task)"
-                (save)="onEdit(edited_task)" >
+                (save)="onEdit(updated_task)" >
 
                 <ng-template viewMode>Est {{ task.time_est }}</ng-template>
 
@@ -88,7 +80,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
                   <input 
                     editableOnEnter 
                     editableOnEscape 
-                    [(ngModel)]="edited_task.time_est"
+                    [(ngModel)]="updated_task.time_est"
                     />
                 </ng-template>
               </editable>
@@ -96,15 +88,15 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
               <!-- show editable task time actual -->
               <editable
                 (click)="assign_old_value(task)"
-                (save)="onEdit(edited_task)" >
+                (save)="onEdit(updated_task)" >
 
-                <ng-template viewMode> - Act {{ task.time_act }}</ng-template>
+                <ng-template viewMode> - Act {{ task.time_used }}</ng-template>
 
                 <ng-template editMode>
                   <input 
                     editableOnEnter 
                     editableOnEscape 
-                    [(ngModel)]="edited_task.time_act"
+                    [(ngModel)]="updated_task.time_used"
                     />
                 </ng-template>
               </editable>
@@ -114,9 +106,14 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
             <button class="c_button"  (click)="onChecking(task)">  </button>
 
             <div class="panel-icon">
-              <img src="assets/icon/trashBin.png" (click)="onDel(task)">
+              <img src="assets/icon/trashBin.png" (click)="onDel(task.id)">
             </div>
           </div>
+        </div>
+
+        <!-- date select button -->
+        <div class="date-select">
+
         </div>
   `,
   styles: [
@@ -124,60 +121,55 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 })
 export class ToDoListComponent implements OnInit{
 
-  allTasks!: any;
+  newTask: Task = new Task();
+  updated_task: Task = new Task();
   taskArr: Task[] = [];
 
+  constructor(
+    private taskService: ToDoListService,
+    private authService: AuthFirebaseService,
+    private storeService: FirestoreService){}
 
-  newTaskName!: string;
-  newTaskObj: Task = new Task();
-
-
-  constructor(private taskService: CrudService){}
-
-  ngOnInit(){
-    this.newTaskName = "";
-    this.newTaskObj = new Task();
-    this.allTasks = this.taskService.getTasks();
+  async ngOnInit(){
+    // subscribe to login state
+    onIdTokenChanged(this.authService.auth, async(user) => {
+      // user logged in
+      if (user) {
+        this.taskArr = await this.taskService.getUndoneTasks();
+        console.log(this.taskArr);} 
+      // no user logged in
+      else {
+        // empty local var
+        this.taskArr = [];
+      }
+    });
   }
 
-
-  onAdd(){
-    this.newTaskObj.task_name = this.newTaskName;
-
-    this.taskService.addTask(this.newTaskObj).subscribe
-    (res => {this.ngOnInit()}, 
-    err => {alert(err);})
+  // add new task to DB
+  async onAdd(){
+    await this.taskService.addTask(this.newTask).then(()=>{
+      this.newTask = new Task();
+      this.ngOnInit();
+    })
   }
 
-  onDel(etask : Task){
-    this.taskService.delTask(etask).subscribe
-    (res => {this.ngOnInit()}, 
-    err => {alert("failed to delete");})
+  // set updated_task info to original value
+  assign_old_value(task: Task){
+    this.updated_task = task;
   }
 
-  onEdit(etask : Task){
-    this.taskService.editTask(etask).subscribe
-    (res => {this.ngOnInit()}, 
-    err => {alert("failed to edit");})
-  }
-
-  getControl(id: number) {
-    console.log(id)
-  }
-
-  // edit in place
-  edited_task: Task = new Task;
-
-
-  assign_old_value(etask: Task){
-    this.edited_task = etask;
+  // update task info
+  onEdit(updated_task : Task){
+    this.taskService.updateTask(updated_task);
   }
 
   onChecking(etask : Task){
-    etask.checked = !etask.checked;
+    etask.done = !etask.done;
     this.onEdit(etask)
   }
 
-
+  onDel(task_Id: string){
+    this.taskService.delTask(task_Id);
+  }
 
 }

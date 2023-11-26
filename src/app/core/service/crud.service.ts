@@ -22,11 +22,11 @@ export class CrudService {
     return this.http.post<Task>(this.apiUrl, task);
    }
 
-   delTask(task: Task) : Observable<Task> {
-    return this.http.delete<Task>(this.apiUrl+'/'+task.id);
-   }
+  //  delTask(task: Task) : Observable<Task> {
+  //   return this.http.delete<Task>(this.apiUrl+'/'+task.id);
+  //  }
 
-   editTask(task: Task) : Observable<Task> {
-    return this.http.put<Task>(this.apiUrl+'/'+task.id, task);
-   }
+  //  editTask(task: Task) : Observable<Task> {
+  //   return this.http.put<Task>(this.apiUrl+'/'+task.id, task);
+  //  }
 }
