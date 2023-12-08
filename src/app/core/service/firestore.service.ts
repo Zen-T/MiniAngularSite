@@ -1,8 +1,7 @@
-import { OnInit } from "@angular/core";
-import { Injectable } from '@angular/core';
+import { OnInit, Injectable } from "@angular/core";
 import { AuthFirebaseService } from './auth-firebase.service';
-import { doc, collection, query, where, QueryConstraint, deleteDoc, getFirestore } from "firebase/firestore";
-import { setDoc, addDoc, getDocs, getDoc, updateDoc, deleteField, serverTimestamp, orderBy } from "firebase/firestore";
+import { doc, collection, query, where, orderBy, QueryConstraint, deleteDoc, getFirestore, WhereFilterOp } from "firebase/firestore";
+import { setDoc, addDoc, getDocs, getDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
 
 @Injectable({
   providedIn: 'root'
@@ -106,7 +105,7 @@ export class FirestoreService implements OnInit{
   }
 
   // Retrieve doc data
-  async retrieveDocs(collPath: string, queryConstraints?: QueryConstraint): Promise<any[]>{
+  async retrieveDocs(collPath: string, queryConstraints?: QueryConstraint[]): Promise<any[]>{
     let docs_data: any[] = [];
 
     // get user ID
@@ -115,11 +114,18 @@ export class FirestoreService implements OnInit{
     // if user exsit
     if (userID != null){
       // qurey
-      let q = query(collection(this.db, "Users", userID, collPath));
+      const collRef = collection(this.db, "Users", userID, collPath);
+      let q = query(collRef);
+      
+      // if queryConstraints exsits
       if (typeof queryConstraints !== 'undefined'){
-        q = query(collection(this.db, "Users", userID, collPath), queryConstraints);
-      };
+        q = query(collRef, ...queryConstraints);
+      }
+
+      // get doc
       const querySnapshot = await getDocs(q);
+
+      // parse and push to output var
       querySnapshot.forEach((doc) => {
         docs_data.push({[doc.id]: doc.data()});
       })

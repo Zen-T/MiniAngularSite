@@ -1,0 +1,42 @@
+.todoApp-container{
+  height: 100%;
+  width: 100%;
+  display: flex; /* 子元素flex横向排列 */
+}
+
+.category-container{
+  height: 100%;
+  width: 13%;
+  background-color: aquamarine;
+  overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
+}
+
+.todoList-container{
+  height: 100%;
+  flex: 1;
+  background-color: rgb(253, 255, 127);
+  display: flex; /* 元素flex排列 */
+  flex-direction: column; /* flex纵向排列 */
+}
+
+.tasks-container{
+  flex: 1;
+  background-color: rgb(255, 127, 127);
+  overflow: auto; /*内容溢出时才显示滚动条 */
+}
+
+.datePicker-container{
+  height: 12%;
+  background-color: rgb(104, 101, 249)
+}
+
+.checked {
+  text-decoration: line-through;
+}
+
+.c_button{
+  width: 70%;
+  height: 60px; 
+  background-color: transparent;
+  border: none;
+}

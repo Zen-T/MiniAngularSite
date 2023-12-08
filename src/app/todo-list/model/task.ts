@@ -1,5 +1,3 @@
-import { Optional } from "@angular/core";
-
 export class Task {
     id: string = "";
 
@@ -20,12 +18,13 @@ export class Task {
     sub_cat: string = "";
     tag: string[] = [];
 
+    parent_task: string = "";
     child_tasks: string[] = [];
     task_level: number = 0;
 
     done: boolean = false;
 
-    setTask (id: string, name: string, detail: string, importance: number, year: number, month: number, day: number, time: number, time_est: number, time_used: number, cat: string, sub_cat: string, tag: string[], child_tasks: string[], task_level: number, done: boolean) {
+    setTask (id: string, name: string, detail: string, importance: number, year: number, month: number, day: number, time: number, time_est: number, time_used: number, cat: string, sub_cat: string, tag: string[], parent_task: string, child_tasks: string[], task_level: number, done: boolean) {
         this.id = id;
 
         this.name = name;
@@ -45,6 +44,7 @@ export class Task {
         this.sub_cat = sub_cat;
         this.tag = tag;
 
+        this.parent_task = parent_task;
         this.child_tasks = child_tasks;
         this.task_level = task_level;
         

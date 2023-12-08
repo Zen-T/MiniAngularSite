@@ -1,0 +1,28 @@
+.add-task-container{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* add task */
+.add-task-info{
+  width: 39%;
+}
+
+.add-task-button{
+}
+
+/* task container */
+.tasks-list-container{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.todo-tasks{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

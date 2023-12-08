@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Task } from '../../to-do-list/model/task';
+import { Task } from '../../todo-list/model/task';
 import { Observable, retry } from 'rxjs';
 
 @Injectable({

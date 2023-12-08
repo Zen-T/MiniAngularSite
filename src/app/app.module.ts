@@ -13,14 +13,13 @@ import { CarsComponent } from './cars/cars.component';
 import { PriceWatchComponent } from './price-watch/price-watch.component';
 import { Reconstruct3dComponent } from './reconstruct3d/reconstruct3d.component';
 import { MindMapComponent } from './mind-map/mind-map.component';
-import { ToDoListComponent } from './to-do-list/to-do-list.component';
-import { EditableModule } from '@ngneat/edit-in-place';
 import { ReactiveFormsModule} from '@angular/forms';
 import { CoreModule } from './core/core.module';
 import { BotComponent } from './bot/bot.component';
 import { LoginComponent } from './login/login.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TodoListModule } from './todo-list/todo-list.module';
 
 
 @NgModule({
@@ -32,22 +31,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     PriceWatchComponent,
     Reconstruct3dComponent,
     MindMapComponent,
-    ToDoListComponent,
     AppComponent,
     BotComponent,
-    LoginComponent,    
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    EditableModule,
-    EditableModule,
     ReactiveFormsModule,
     CoreModule,
     BrowserAnimationsModule,
     MatProgressBarModule,
+    TodoListModule,
   ],
   providers: [
   ],

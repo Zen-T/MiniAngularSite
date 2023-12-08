@@ -6,7 +6,6 @@ import { CarsComponent } from './cars/cars.component';
 import { PriceWatchComponent } from './price-watch/price-watch.component';
 import { MindMapComponent } from './mind-map/mind-map.component';
 import { Reconstruct3dComponent } from './reconstruct3d/reconstruct3d.component';
-import { ToDoListComponent } from './to-do-list/to-do-list.component';
 import { BotComponent } from './bot/bot.component';
 import { LoginComponent } from './login/login.component';
 
@@ -44,7 +43,7 @@ const routes: Routes = [
   },
   {
     path: 'todolist',
-    component: ToDoListComponent
+    loadChildren: () => import('./todo-list/todo-list.module').then(m => m.TodoListModule)
   },
   {
     path: 'bot',

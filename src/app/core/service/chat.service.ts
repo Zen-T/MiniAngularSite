@@ -17,6 +17,7 @@ export class ChatService {
   ngOnInit(){
     console.log("oninit chat service")
   }
+  
   // post message to middle ware
   sentMessage(chat_history: any[]) {
     const header = new HttpHeaders({
@@ -94,13 +95,17 @@ export class ChatService {
     let chat_list: any[] = [];
 
     if (doc_data != null) {
+      // .push doc_data to chat_list array
       Object.entries(doc_data).forEach((chatInfo: any[]) => {
-       chat_list.push({ id: chatInfo[0], title: chatInfo[1].title, timeStamp: chatInfo[1].timestamp});
+        chat_list.push({ id: chatInfo[0], title: chatInfo[1].title, timeStamp: chatInfo[1].timestamp});
+      });
+
+      // .sort list by time 
+      chat_list.sort((a, b) => {
+        return b.timeStamp.seconds - a.timeStamp.seconds;
       });
     }
-    chat_list.sort((a, b) => {
-      return b.timeStamp.seconds - a.timeStamp.seconds
-    })
+
     return chat_list;
   }
 
@@ -121,5 +126,4 @@ export class ChatService {
     })
 
   }
-
 }

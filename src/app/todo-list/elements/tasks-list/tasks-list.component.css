@@ -1,0 +1,85 @@
+.add-task-container{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* add task */
+.add-task-info{
+  width: 39%;
+}
+
+.add-task-button{
+}
+
+/* task container */
+.tasks-list-container{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.tasks-list{
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.task-item{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+/* task item left */
+.task-item-lef{
+  width: 13%;
+  display: flex;
+  flex-direction: column;
+  padding-right: 1.5rem;
+}
+
+.tag-img{
+  width: 239px !important;
+}
+
+.est-time{
+}
+
+/* task item middle */
+.task-item-mid{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.task-name{
+  font-size: 1.9rem;
+}
+
+.task-done {
+  text-decoration: line-through;
+}
+
+.done-button{
+  width: 70%;
+  height: 60px; 
+  background-color: transparent;
+  border: none;
+}
+
+.cat-name{
+  font-size: 1rem;
+}
+
+/* task item right */
+.task-item-rig{
+  width: 15%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+
