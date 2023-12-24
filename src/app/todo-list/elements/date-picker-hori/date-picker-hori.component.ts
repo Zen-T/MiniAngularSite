@@ -12,21 +12,15 @@ import { Component, EventEmitter, Output } from '@angular/core';
   ]
 })
 export class DatePickerHoriComponent {
-  @Output() date_sele_map = new EventEmitter<object>();
+  @Output() date_selection = new EventEmitter<number>();
   
   selectDate(id: number){
-    // form date selection constraint
-    const constraint = {key:"day", opt:"==", val: id};
-    
     // output datte selection to parent component
-    this.date_sele_map.emit(constraint);
+    this.date_selection.emit(id);
   }
 
   deselectDate(){
-    // form date selection constraint
-    const constraint = {};
-
     // output datte selection to parent component
-    this.date_sele_map.emit(constraint);
+    this.date_selection.emit(0);
   }
 }

@@ -97,7 +97,10 @@ export class ChatService {
     if (doc_data != null) {
       // .push doc_data to chat_list array
       Object.entries(doc_data).forEach((chatInfo: any[]) => {
-        chat_list.push({ id: chatInfo[0], title: chatInfo[1].title, timeStamp: chatInfo[1].timestamp});
+        // check if timestamp is already added to the chatInfo
+        if(chatInfo[1].timestamp){
+          chat_list.push({ id: chatInfo[0], title: chatInfo[1].title, timeStamp: chatInfo[1].timestamp});
+        }
       });
 
       // .sort list by time 

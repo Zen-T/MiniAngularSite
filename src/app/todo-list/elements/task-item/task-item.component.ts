@@ -7,7 +7,7 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
   selector: 'app-task-item',
   template: `
     <link rel="stylesheet" href="task-item.component.css">
-
+    
     <li class="task-item">
           <!-- left of the task item -->
           <div class="task-item-lef">

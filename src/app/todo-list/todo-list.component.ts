@@ -17,20 +17,22 @@ import { collection, doc, onSnapshot } from 'firebase/firestore';
 
     <!-- category picker (left side of the app) -->
     <div class="category-container">
-      <app-cats-picker (cat_sele_map)="selectCat($event)"></app-cats-picker>
+      <app-cats-picker (cat_selection)="selectCat($event)"></app-cats-picker>
     </div>
     
     <!-- tasks viewer and day picker (right side of the app) -->
     <div class="todoList-container">
-      <app-tasks-tree [tasks]="tasksArr"></app-tasks-tree>
+
+      <!-- tasks tree -->
+      <app-tasks-tree [tasksArr]="tasksArr"></app-tasks-tree>
 
       <!-- list of tasks -->
       <div class="tasks-container">
-        <app-tasks-viewer [tasksArr]="tasksArr"></app-tasks-viewer>
+        <app-tasks-viewer [tasksArr]="tasksArr" [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-tasks-viewer>
       </div>
       <!-- date picker -->
       <div class="datePicker-container">
-        <app-date-picker-hori (date_sele_map)="selectDate($event)"></app-date-picker-hori>
+        <app-date-picker-hori (date_selection)="selectDate($event)"></app-date-picker-hori>
       </div>
     </div>
   </div>
@@ -46,8 +48,8 @@ export class TodoListComponent implements OnInit{
     private authService: AuthFirebaseService,
     private storeService: FirestoreService){}
 
-  cat_selection: object = {};
-  date_selection: object = {};
+  cat_selection: string = "";
+  date_selection: number = 0;
   tasksArr: Task[] = [];
 
   ngOnInit(){
@@ -72,24 +74,37 @@ export class TodoListComponent implements OnInit{
   // get tasks with constraints
   async get_tasks(){
     // get all tasks in selected category
-    this.tasksArr = await this.taskService.getDateTasks([this.cat_selection, this.date_selection]);
+    
+    // build cat Constraint Map for DB request
+    let catConstraintMap = {};
+    if(this.cat_selection != ""){
+      catConstraintMap = {key: "cat", opt: "==", val: this.cat_selection};
+    }
+
+    // build date Constraint Map for DB request
+    let dateConstraintMap = {};
+    if(this.date_selection != 0){
+      dateConstraintMap =  {key:"day", opt:"==", val: this.date_selection};
+    }
+
+    this.tasksArr = await this.taskService.getDateTasks([catConstraintMap, dateConstraintMap]);
   }
 
   // select cat
-  async selectCat(constraintMap: object){
+  async selectCat(cat_selection: string){
     // update cat selection
-    this.cat_selection = constraintMap;
+    this.cat_selection = cat_selection;
     
-    // get tasks
+    // update tasks array
     this.get_tasks();
   }
 
   // select date
-  async selectDate(constraintMap: object){
+  async selectDate(date_selection: number){
     // update date selection
-    this.date_selection = constraintMap;
+    this.date_selection = date_selection;
     
-    // get tasks
+    // update tasks array
     this.get_tasks();
   }
 }

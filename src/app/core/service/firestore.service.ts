@@ -1,33 +1,44 @@
-import { OnInit, Injectable } from "@angular/core";
+// this service provide function to read/write to the firebase database
+
+import { Injectable, OnInit } from "@angular/core";
 import { AuthFirebaseService } from './auth-firebase.service';
 import { doc, collection, query, where, orderBy, QueryConstraint, deleteDoc, getFirestore, WhereFilterOp } from "firebase/firestore";
 import { setDoc, addDoc, getDocs, getDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
+import { getAuth, onIdTokenChanged } from "firebase/auth";
 
 @Injectable({
   providedIn: 'root'
 })
-export class FirestoreService implements OnInit{
-  constructor(private authService: AuthFirebaseService) {}
+export class FirestoreService{
 
-  ngOnInit(){
-    console.log('ngoninit firestore service')
+  userID: string | null = null;
+
+  constructor(private authService: AuthFirebaseService) {
+    // subscribe to login state
+    onIdTokenChanged(this.authService.auth, (user) => {
+      // user logged in
+      if (user) {
+        this.userID = user.uid;
+      }
+      // no user logged in
+      else {
+        this.userID = null;
+      }
+    });
   }
-
+  
   // connect firebase Auth with a firebase App
   db = getFirestore(this.authService.app);
-  
+
   // add an Doc to an Coll, return Doc Id if success, null if error
   async addDocInColl(collPath: string, doc_content: JSON): Promise<string>{
     let doc_Id: string = "";
 
-    // get user ID
-    const userID = await this.authService.getUserID();
-
     // add data
-    if (userID != null){
+    if (this.userID != null){
       try {
         // add doc to a collection with auto gen doc id
-        const collRef = collection(this.db, "Users", userID, collPath);
+        const collRef = collection(this.db, "Users", this.userID, collPath);
         const docRef = await addDoc(collRef, JSON.parse(JSON.stringify(doc_content)));
 
         // log doc id
@@ -46,16 +57,13 @@ export class FirestoreService implements OnInit{
   async addMapInDoc(docPath: string, map: {}): Promise<boolean>{
     let suc = false;
 
-    // get user ID
-    const userID = await this.authService.getUserID();
-
     // add Map
-    if (userID != null){
+    if (this.userID != null){
       if(Object.keys(map).length != 0)
       {
         try {
           // add map to a doc
-          const docRef = doc(this.db, "Users", userID, docPath);
+          const docRef = doc(this.db, "Users", this.userID, docPath);
           await updateDoc(docRef, map); // new data merged into the existing document
           suc = true;
         } catch (e) {
@@ -75,16 +83,13 @@ export class FirestoreService implements OnInit{
   async addMapAndTimeInDoc(docPath: string, map: {}): Promise<string>{
     let doc_Id: string = "";
 
-    // get user ID
-    const userID = await this.authService.getUserID();
-
     // add Map
-    if (userID != null){
+    if (this.userID != null){
       if(Object.keys(map).length != 0)
       {
         try {
           // add map to a doc
-          const docRef = doc(this.db, "Users", userID, docPath);
+          const docRef = doc(this.db, "Users", this.userID, docPath);
           await setDoc(docRef, map, { merge: true }); // new data merged into the existing document
 
           // add server time stamp inside map's first key
@@ -107,14 +112,11 @@ export class FirestoreService implements OnInit{
   // Retrieve doc data
   async retrieveDocs(collPath: string, queryConstraints?: QueryConstraint[]): Promise<any[]>{
     let docs_data: any[] = [];
-
-    // get user ID
-    const userID = await this.authService.getUserID();
     
     // if user exsit
-    if (userID != null){
+    if (this.userID != null){
       // qurey
-      const collRef = collection(this.db, "Users", userID, collPath);
+      const collRef = collection(this.db, "Users", this.userID, collPath);
       let q = query(collRef);
       
       // if queryConstraints exsits
@@ -138,13 +140,10 @@ export class FirestoreService implements OnInit{
   async retrieveDocDate(docPath: string): Promise<any>{
     let doc_data = null;
 
-    // get user ID
-    const userID = await this.authService.getUserID();
-
     // if user exsit
-    if (userID != null){
+    if (this.userID != null){
       // qurey
-      const docRef = doc(this.db, "Users", userID, docPath);
+      const docRef = doc(this.db, "Users", this.userID, docPath);
       const docSnap = await getDoc(docRef);
 
       // store doc content
@@ -162,14 +161,11 @@ export class FirestoreService implements OnInit{
 
   // Remove doc
   async removeDoc(docPath: string){
-    // get user ID
-    const userID = await this.authService.getUserID();
-
     // if user exsit
-    if (userID != null){
+    if (this.userID != null){
 
       // delete doc
-      const docRef = doc(this.db, "Users", userID, docPath);
+      const docRef = doc(this.db, "Users", this.userID, docPath);
       await deleteDoc(docRef);
 
     } else{
@@ -179,14 +175,12 @@ export class FirestoreService implements OnInit{
 
   // Delete field
   async deleteField(docPath: string, field_name: string){
-     // get user ID
-     const userID = await this.authService.getUserID();
 
     // if user exsit
-    if (userID != null){
+    if (this.userID != null){
 
       // .delete field
-      const docRef = doc(this.db, "Users", userID, docPath);
+      const docRef = doc(this.db, "Users", this.userID, docPath);
       await updateDoc(docRef, {[field_name]: deleteField()});
 
     } else{

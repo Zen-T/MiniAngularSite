@@ -1,0 +1,21 @@
+.top-navbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-item{
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.user-item:hover{
+  background-color: rgb(13, 97, 98); /* 修改为你想要的高亮样式 */
+}
+
+
+.user-icon{
+  height: 52px;
+}

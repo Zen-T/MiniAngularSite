@@ -52,6 +52,8 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
 })
 export class TasksViewerComponent implements OnChanges{
   @Input() tasksArr!: Task[];
+  @Input() newTaskCat!: string;
+  @Input() newTaskdate!: number;
   
   todoTasks: Task[] = [];
   doneTasks: Task[] = [];
@@ -81,6 +83,8 @@ export class TasksViewerComponent implements OnChanges{
 
   // add new task to DB
   async add_task(){
+    this.newTask.cat = this.newTaskCat;
+    this.newTask.day = this.newTaskdate;
     await this.taskService.addTask(this.newTask).then(()=>{
       // empty newTask
       this.newTask = new Task();

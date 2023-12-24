@@ -39,7 +39,7 @@ import { QueryConstraint, doc, onSnapshot } from 'firebase/firestore';
   ]
 })
 export class CatsPickerComponent implements OnInit{
-  @Output() cat_sele_map =  new EventEmitter<object>();
+  @Output() cat_selection =  new EventEmitter<string>();
 
   catsArr: any[] = [];
   new_cat_name: string = "";
@@ -84,21 +84,14 @@ export class CatsPickerComponent implements OnInit{
     this.catsArr = await this.taskService.getCatsList();
   }
 
-  // select cat
+  // output selected cat 
   async selectCat(cat_name: string){
-    // form query constraint map
-    const constraintMap = {key: "cat", opt: "==", val: cat_name};
-
-    // output cat selection to parent component
-    this.cat_sele_map.emit(constraintMap);
+    this.cat_selection.emit(cat_name);
   }
 
   // deselect cat
   async deselectCat(){
-    // form query constraint map
-    const constraintMap = {};
-
     // output cat selection to parent component
-     this.cat_sele_map.emit(constraintMap);
+     this.cat_selection.emit("");
   }
 }

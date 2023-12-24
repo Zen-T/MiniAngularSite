@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, onIdTokenChanged } from 'firebase/auth'
+import { getAuth } from 'firebase/auth'
 import * as firebaseAuth from 'firebase/auth';
-import { OnInit } from '@angular/core';
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthFirebaseService implements OnInit {
+export class AuthFirebaseService {
   // connect firebase Auth with a firebase App
   firebaseConfig = {
     apiKey: "AIzaSyASITCJVAu03AZXoBupZ9EH4uU3iTKjuDU",
@@ -22,20 +21,6 @@ export class AuthFirebaseService implements OnInit {
   app = initializeApp(this.firebaseConfig);
   auth = getAuth(this.app);
   
-  userID!: string | null;
-
-  ngOnInit(){
-    console.log("ngOnInit: auth service");
-    // subscribe to login state
-    onAuthStateChanged(this.auth, (user) => {
-      if (user) {
-        this.userID = user.uid;
-      } else {
-        this.userID = null;
-      }
-    });
-  }
-
   // user sign up
   async userSignUp(email:string, password:string){
     await firebaseAuth.createUserWithEmailAndPassword(this.auth, email, password).then(cred => {
@@ -59,36 +44,12 @@ export class AuthFirebaseService implements OnInit {
     });
   }
 
-  // get current user id
-  async checkUserId(): Promise<string | null> {
-    console.log("auth service: geting user id")
-    
-    await onIdTokenChanged(this.auth, (user) => {
-      if (user) {
-        console.log("auth service: onIdTokenChanged")
-        this.userID = user.uid;
-        console.log("auth service: " + this.userID);
-
-      } else {
-        console.log("auth service: onIdTokenChanged null")
-        this.userID = null;
-      }
-    });
-
-    console.log("auth service: id " + this.userID);
-    return this.userID;
-  }
-
   // verify user id
-  async getUserID(){
-    console.log("auth service: geting user id")
-    const auth = await getAuth();
-    const user = await auth.currentUser;
+  async getUserID(): Promise<string|null>{
+    const user = await getAuth().currentUser;
 
     if (user) {
-      const uid = user.uid;
-      console.log("auth service: " + uid);
-      return uid;
+      return user.uid;
     } else {
       return null;
     }

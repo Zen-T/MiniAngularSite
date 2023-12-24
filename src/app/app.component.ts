@@ -9,12 +9,12 @@ import { Component } from '@angular/core';
 
       <!--header-->
       <div class="app-header">
-      <app-header></app-header>
+        <app-header></app-header>
       </div>
 
       <!-- routes get injected here -->
       <div class="app-content">
-      <router-outlet></router-outlet>
+        <router-outlet></router-outlet>
       </div>
 
     </div>
@@ -29,6 +29,4 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'angular_site';
-
-  constructor() {};
 }

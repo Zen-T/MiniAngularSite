@@ -6,7 +6,7 @@ import { GithubUsersService } from './service/github-users.service';
 import { CarsServiceService } from './service/cars-service.service';
 import { CrudService } from './service/crud.service';
 import { RouterModule } from '@angular/router';
-
+import { MatMenuModule } from '@angular/material/menu';
 
 
 @NgModule({
@@ -16,7 +16,8 @@ import { RouterModule } from '@angular/router';
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    MatMenuModule
   ],
   providers:[
     GithubUsersService,

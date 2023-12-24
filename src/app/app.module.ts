@@ -21,7 +21,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TodoListModule } from './todo-list/todo-list.module';
 
-
 @NgModule({
   declarations: [
     AppComponent,

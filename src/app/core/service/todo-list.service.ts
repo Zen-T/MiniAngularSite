@@ -20,8 +20,8 @@ export class TodoListService {
   }
 
   // remove task
-  async delTask(doc_Id: string){
-    await this.dbService.removeDoc("Apps/todoApp/Tasks/" + doc_Id);
+  async delTask(task_Id: string){
+    await this.dbService.removeDoc("Apps/todoApp/Tasks/" + task_Id);
   }
 
   // update task
@@ -29,6 +29,45 @@ export class TodoListService {
     await this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + updated_task.id, JSON.parse(JSON.stringify(updated_task)));
   }
 
+  // get tasks
+  async getTask(task_Id: string): Promise<Task>{
+
+    // retrieve docs
+    const docData = await this.dbService.retrieveDocDate("Apps/todoApp/Tasks/" + task_Id)
+
+    // create task variable
+    let task = new Task;
+
+    // parse doc data to task
+    task.setTask(
+      docData.id, 
+
+      docData.name, 
+      docData.detail, 
+
+      docData.importance, 
+
+      docData.year, 
+      docData.month, 
+      docData.day, 
+      docData.time, 
+
+      docData.time_est, 
+      docData.time_used, 
+
+      docData.cat, 
+      docData.sub_cat, 
+      docData.tag, 
+
+      docData.parent_task, 
+      docData.child_tasks, 
+      docData.task_level, 
+
+      docData.done);
+
+    return task;
+  }
+  
   // get tasks
   async getTasks(): Promise<Task[]>{
     let tasks: Task[] = [];

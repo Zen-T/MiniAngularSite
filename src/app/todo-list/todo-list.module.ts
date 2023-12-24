@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule } from '@angular/material/tree';
 import { TaskItemComponent } from './elements/task-item/task-item.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { TaskTreeItemComponent } from './elements/task-tree-item/task-tree-item.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     DatePickerHoriComponent,
     TasksTreeComponent,
     TaskItemComponent,
+    TaskTreeItemComponent,
   ],
   imports: [
     CommonModule,
