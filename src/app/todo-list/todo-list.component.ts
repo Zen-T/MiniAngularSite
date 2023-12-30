@@ -22,13 +22,12 @@ import { collection, doc, onSnapshot } from 'firebase/firestore';
     
     <!-- tasks viewer and day picker (right side of the app) -->
     <div class="todoList-container">
-
-      <!-- tasks tree -->
-      <app-tasks-tree [tasksArr]="tasksArr"></app-tasks-tree>
-
       <!-- list of tasks -->
       <div class="tasks-container">
-        <app-tasks-viewer [tasksArr]="tasksArr" [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-tasks-viewer>
+        <!-- tasks tree -->
+        <app-add-task [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-add-task>
+        <app-tasks-tree [tasksArr]="tasksArr"></app-tasks-tree>
+        <!-- <app-tasks-viewer [tasksArr]="tasksArr" [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-tasks-viewer> -->
       </div>
       <!-- date picker -->
       <div class="datePicker-container">

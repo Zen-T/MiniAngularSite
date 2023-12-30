@@ -7,16 +7,22 @@ import { Task } from '../../model/task';
 @Component({
   selector: 'app-task-tree-item',
   template: `
-    <div style="display: flex;">
-      <!-- button hide task children -->
-      <button *ngIf="taskNode.task_children.length" (click)="collapse()">></button>
+    <link rel="stylesheet" href="task-tree-item.component.css">
+    <div >
       <!-- task + lvl item -->
-      <div cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropToChangeParent($event)" style="display: flex;">
+      <div class="lvl-and-collapsible-task" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropToChangeParent($event)">
         <!-- task parents (lvl) item -->
-        <div  *ngFor="let parent_id of taskNode.task_parents_id" id="{{parent_id}}" cdkDrag [cdkDragDisabled]="true"> _ </div>
+        <div class="task-parents" *ngFor="let parent_id of taskNode.task_parents_id" id="{{parent_id}}" cdkDrag [cdkDragDisabled]="true">  </div>
         <!-- task item -->
-        <div id="{{taskNode.task_info.id}}" cdkDrag [cdkDragData]="taskNode.task_info">
-          {{ taskNode.task_info.name }}
+        <div class="task-and-collapse-button" id="{{taskNode.task_info.id}}" cdkDrag [cdkDragData]="taskNode.task_info">
+          <!-- button hide task children -->
+          <div class="collapse-button">
+            <img src="assets/icon/circle-regular.svg" *ngIf="!taskNode.task_children.length">
+            <img src="assets/icon/circle-right-regular.svg" *ngIf="taskNode.task_children.length && !showChildren" (click)="collapse()">
+            <img src="assets/icon/circle-down-regular.svg" *ngIf="taskNode.task_children.length && showChildren" (click)="collapse()">
+          </div>
+          <!-- task item -->
+          <app-task-item class="task-item" [task] = "taskNode.task_info"></app-task-item>
         </div>
       </div>
     </div>

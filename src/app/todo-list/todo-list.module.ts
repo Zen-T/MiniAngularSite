@@ -16,6 +16,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { TaskItemComponent } from './elements/task-item/task-item.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskTreeItemComponent } from './elements/task-tree-item/task-tree-item.component';
+import { AddTaskComponent } from './elements/add-task/add-task.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { TaskTreeItemComponent } from './elements/task-tree-item/task-tree-item.
     TasksTreeComponent,
     TaskItemComponent,
     TaskTreeItemComponent,
+    AddTaskComponent
   ],
   imports: [
     CommonModule,

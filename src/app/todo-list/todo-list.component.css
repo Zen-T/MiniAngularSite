@@ -14,20 +14,20 @@
 .todoList-container{
   height: 100%;
   flex: 1;
-  background-color: rgb(253, 255, 127);
+  background-color: rgb(255, 127, 127);
   display: flex; /* 元素flex排列 */
   flex-direction: column; /* flex纵向排列 */
 }
 
 .tasks-container{
   flex: 1;
-  background-color: rgb(255, 127, 127);
+  background-color: rgb(255 236 152);
   overflow: auto; /*内容溢出时才显示滚动条 */
 }
 
 .datePicker-container{
   height: 12%;
-  background-color: rgb(104, 101, 249)
+  background-color: rgb(137, 136, 210)
 }
 
 .checked {

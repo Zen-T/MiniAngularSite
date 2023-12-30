@@ -8,7 +8,7 @@ import { TaskNode } from '../../model/taskNode';
     <link rel="stylesheet" href="tasks-tree.component.css">
 
     <!-- tasks tree droplist group -->
-    <div id="taskTreeNgIf" cdkDropListGroup>
+    <div class="tasksTree" cdkDropListGroup>
       <!-- BSF show tree node -->
       <div *ngFor="let node of tasksTree">
         <!-- task tree item -->
@@ -31,7 +31,6 @@ export class TasksTreeComponent implements OnChanges{
       this.buildTasksTree()
     }
   }
-  
 
   // build tasksTree with recursive
   buildTaskNode(task: Task, parents_id: string[]): TaskNode{

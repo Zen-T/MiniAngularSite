@@ -1,0 +1,37 @@
+/* take all width */
+.lvl-and-collapsible-task{
+  width: 100%;
+  height: 90px; 
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* fix width for drag to select lvl */
+.task-parents{
+  width: 65px;
+  height: 65px;
+  text-align: center;
+  background-color: #ddda70;
+}
+
+/* align center horizontally */
+.task-and-collapse-button{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* collapse button placeholder for aligenment */
+.collapse-button{
+  width: 30px !important; 
+}
+
+.collapse-button img{
+  width: 30px !important; 
+}
+
+.task-item{
+  width: 100%;
+}

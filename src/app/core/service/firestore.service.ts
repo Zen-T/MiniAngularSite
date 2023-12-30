@@ -53,7 +53,7 @@ export class FirestoreService{
     return doc_Id;
   }
 
-  // add/update Map to an Doc
+  // add/overwrite Map to an Doc
   async addMapInDoc(docPath: string, map: {}): Promise<boolean>{
     let suc = false;
 
@@ -64,7 +64,7 @@ export class FirestoreService{
         try {
           // add map to a doc
           const docRef = doc(this.db, "Users", this.userID, docPath);
-          await updateDoc(docRef, map); // new data merged into the existing document
+          await setDoc(docRef, map, { merge: true });  // new data merged into the existing document
           suc = true;
         } catch (e) {
           console.error("Error adding document: ", e);
