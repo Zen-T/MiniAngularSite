@@ -17,7 +17,7 @@ import { collection, doc, onSnapshot } from 'firebase/firestore';
 
     <!-- category picker (left side of the app) -->
     <div class="category-container">
-      <app-cats-picker (cat_selection)="selectCat($event)"></app-cats-picker>
+      <app-cats-picker (cat_selection)="selectCat($event)" (state_selection)="selectState($event)"></app-cats-picker>
     </div>
     
     <!-- tasks viewer and day picker (right side of the app) -->
@@ -49,6 +49,8 @@ export class TodoListComponent implements OnInit{
 
   cat_selection: string = "";
   date_selection: number = 0;
+  state_selection!: boolean | null;
+
   tasksArr: Task[] = [];
 
   ngOnInit(){
@@ -86,7 +88,13 @@ export class TodoListComponent implements OnInit{
       dateConstraintMap =  {key:"day", opt:"==", val: this.date_selection};
     }
 
-    this.tasksArr = await this.taskService.getDateTasks([catConstraintMap, dateConstraintMap]);
+    // build date Constraint Map for DB request
+    let stateConstraintMap = {};
+    if(this.state_selection != null){
+      stateConstraintMap =  {key:"done", opt:"==", val: this.state_selection};
+    }
+
+    this.tasksArr = await this.taskService.getDateTasks([catConstraintMap, dateConstraintMap, stateConstraintMap]);
   }
 
   // select cat
@@ -102,6 +110,16 @@ export class TodoListComponent implements OnInit{
   async selectDate(date_selection: number){
     // update date selection
     this.date_selection = date_selection;
+    
+    // update tasks array
+    this.get_tasks();
+  }
+
+  // select state
+  async selectState(state_selection: boolean | null){
+    // update date selection
+    this.state_selection = state_selection;
+    console.log(state_selection)
     
     // update tasks array
     this.get_tasks();

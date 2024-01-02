@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, Renderer2 } from '@angular/core';
 import { TaskNode } from '../../model/taskNode';
-import {CdkDrag, CdkDragDrop, CdkDragMove} from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDragEnter, CdkDragExit, CdkDragMove, CdkDragRelease, CdkDragSortEvent, CdkDragStart} from '@angular/cdk/drag-drop';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
 import { Task } from '../../model/task';
 
@@ -8,21 +8,28 @@ import { Task } from '../../model/task';
   selector: 'app-task-tree-item',
   template: `
     <link rel="stylesheet" href="task-tree-item.component.css">
-    <div >
+
+    <div>
       <!-- task + lvl item -->
-      <div class="lvl-and-collapsible-task" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropToChangeParent($event)">
+      <div class="lvl-and-collapsible-task" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropToChangeParent($event)" (cdkDropListEntered)="enterList($event)" (cdkDropListExited)="exitList($event)">
         <!-- task parents (lvl) item -->
-        <div class="task-parents" *ngFor="let parent_id of taskNode.task_parents_id" id="{{parent_id}}" cdkDrag [cdkDragDisabled]="true">  </div>
+        <div class="task-parents" *ngFor="let parent_id of taskNode.task_parents_id; let i = index;" id="{{parent_id}}" cdkDrag [cdkDragDisabled]="true" >
+          <div class="task-parents-name">
+            {{taskNode.task_parents_name[i]}}
+          </div>
+        </div>
         <!-- task item -->
-        <div class="task-and-collapse-button" id="{{taskNode.task_info.id}}" cdkDrag [cdkDragData]="taskNode.task_info">
+        <div class="task-and-collapse-button" id="{{taskNode.task_info.id}}" cdkDrag [cdkDragData]="taskNode.task_info" (cdkDragStarted)="startDrag($event)" (cdkDragReleased)="releaseDrag($event)">
+          <!-- cdk drag placeholder -->
+          <div class="cdk-drag-placeholder" *cdkDragPlaceholder></div>
           <!-- button hide task children -->
-          <div class="collapse-button">
-            <img src="assets/icon/circle-regular.svg" *ngIf="!taskNode.task_children.length">
-            <img src="assets/icon/circle-right-regular.svg" *ngIf="taskNode.task_children.length && !showChildren" (click)="collapse()">
-            <img src="assets/icon/circle-down-regular.svg" *ngIf="taskNode.task_children.length && showChildren" (click)="collapse()">
+          <div cdkDragHandle class="collapse-button">
+            <img src="assets/icon/circle-regular.svg" *ngIf="!taskNode.task_children.length"> <!-- no children -->
+            <img src="assets/icon/circle-right-regular.svg" *ngIf="taskNode.task_children.length && !showChildren" (click)="collapse()"> <!-- children hide -->
+            <img src="assets/icon/circle-down-regular.svg" *ngIf="taskNode.task_children.length && showChildren" (click)="collapse()"> <!-- children show -->
           </div>
           <!-- task item -->
-          <app-task-item class="task-item" [task] = "taskNode.task_info"></app-task-item>
+          <app-task-item class="task-item" [task]="taskNode.task_info"></app-task-item>
         </div>
       </div>
     </div>
@@ -30,7 +37,7 @@ import { Task } from '../../model/task';
     <!-- task children -->
     <div *ngIf="showChildren">
       <div *ngFor="let childrenNode of taskNode.task_children">
-        <app-task-tree-item [taskNode]="childrenNode"></app-task-tree-item>
+        <app-task-tree-item [taskNode]="childrenNode" ></app-task-tree-item>
       </div>
     </div>
   `,
@@ -39,9 +46,13 @@ import { Task } from '../../model/task';
 })
 export class TaskTreeItemComponent {
   @Input() taskNode!: TaskNode;
-  constructor(private taskService: TodoListService){}
+  constructor(private taskService: TodoListService,
+              private renderer: Renderer2,
+              private el: ElementRef){}
 
-  showChildren = true;
+  showChildren: boolean = true;
+  originSlot: any;
+
   collapse(){
     this.showChildren = !this.showChildren;
   }
@@ -63,7 +74,6 @@ export class TaskTreeItemComponent {
     if(old_parent_ID != new_parent_Id){
       this.assignNewParent(source_task_ID, old_parent_ID, new_parent_Id);
     }
-
   }
 
   async assignNewParent(source_task_ID: string, old_parent_ID: string, new_parent_Id: string){
@@ -100,5 +110,102 @@ export class TaskTreeItemComponent {
         await this.taskService.updateTask(updated_task);
       }
     }
+  }
+
+  enterList(event: CdkDragEnter<any>){
+    // show parents block
+    event.container.element.nativeElement.querySelectorAll('.task-parents').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'background-color', '#ddda70');
+      this.renderer.setStyle(target_element, 'border-right', 'solid #00ffb138');
+    })
+
+    // preview parent name when enter a drag list
+    event.container.element.nativeElement.querySelectorAll('.task-parents-name').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'display', 'contents');
+    })
+
+    // show task item width block
+    event.container.element.nativeElement.querySelectorAll('.task-and-collapse-button').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'background-color', '#ddda70');
+      this.renderer.setStyle(target_element, 'border-right', 'solid #00ffb138');
+    })
+  }
+
+  exitList(event: CdkDragExit<any>){
+    // hide parents block
+    event.container.element.nativeElement.querySelectorAll('.task-parents').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'background-color', 'transparent');
+      this.renderer.setStyle(target_element, 'border-right', 'none');
+    })
+
+    // hide parent name when enter a drag list
+    event.container.element.nativeElement.querySelectorAll('.task-parents-name').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'display', 'none');
+    })
+
+    // hide parent name when enter a drag list
+    event.container.element.nativeElement.querySelectorAll('.task-and-collapse-button').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'background-color', 'transparent');
+      this.renderer.setStyle(target_element, 'border-right', 'none');
+    })
+  }
+
+  startDrag(event: CdkDragStart<any>){
+    // shorten task item width when task being dragged (to make selecting lvl easier)
+    
+    // 1. shorten all tasks (on this page) item width, class="task-and-collapse-button" width = 399px
+    document.querySelectorAll('.task-and-collapse-button').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'width', '399px');
+    })
+
+    // 2. disable all tasks (on this page) item class="task-item-rig" by diable class="task-item" hover 
+    document.querySelectorAll('.task-item').forEach((target_element)=>{
+      this.renderer.setStyle(target_element,  'pointer-events', 'none');
+    })
+
+    // show this task's parents block when drag start
+    event.source.dropContainer.element.nativeElement.querySelectorAll('.task-parents').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'background-color', '#ddda70');
+      this.renderer.setStyle(target_element, 'border-right', 'solid #00ffb138');
+    })
+
+    // show this task's parents name when drag start
+    event.source.dropContainer.element.nativeElement.querySelectorAll('.task-parents-name').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'display', 'contents');
+    })
+
+    // show task original slot
+    this.originSlot = event.source.dropContainer.element.nativeElement;
+    this.renderer.setStyle(this.originSlot, 'background-color', '#d0e2c3');
+
+  }
+
+  releaseDrag(event: CdkDragRelease<any>){
+    // recover task item and parent block when dragging stop
+
+    // 1. recover from shorten task item width
+    document.querySelectorAll('.task-and-collapse-button').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'width', '100%');
+    })
+
+    // 2. recover from disable class="task-item-rig" by diable class="task-item" hover 
+    document.querySelectorAll('.task-item').forEach((target_element)=>{
+      this.renderer.setStyle(target_element,  'pointer-events', 'all');
+    })
+
+    // hide all parents block in this page
+    document.querySelectorAll('.task-parents').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'background-color', 'transparent');
+      this.renderer.setStyle(target_element, 'border-right', 'none');
+    })
+
+    // hide parents name in this page
+    document.querySelectorAll('.task-parents-name').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'display', 'none');
+    })
+
+    // hide task original slot
+    this.renderer.setStyle(this.originSlot, 'background-color', 'transparent');
+    this.originSlot = null;
   }
 }

@@ -6,10 +6,21 @@ import { onIdTokenChanged } from 'firebase/auth';
 import { FirestoreService } from 'src/app/core/service/firestore.service';
 import { QueryConstraint, doc, onSnapshot } from 'firebase/firestore';
 
+
 @Component({
   selector: 'app-cats-picker',
   template: `
     <link rel="stylesheet" href="cats-picker.component.css">
+
+    <!-- tasks state selector -->
+    <mat-form-field style="width: 100%;">
+      <mat-label>show task</mat-label>
+      <mat-select [(value)]="selected_state" (selectionChange)="selectState(selected_state)">
+        <mat-option value="null">All</mat-option>
+        <mat-option [value]="false">To Do</mat-option>
+        <mat-option [value]="true">Done</mat-option>
+      </mat-select>
+    </mat-form-field>
 
     <!-- app container -->
     <div class="cats-list-container">
@@ -40,9 +51,11 @@ import { QueryConstraint, doc, onSnapshot } from 'firebase/firestore';
 })
 export class CatsPickerComponent implements OnInit{
   @Output() cat_selection =  new EventEmitter<string>();
+  @Output() state_selection =  new EventEmitter<boolean | null>();
 
   catsArr: any[] = [];
   new_cat_name: string = "";
+  selected_state: boolean | string = false;
 
   constructor(
     private taskService: TodoListService,
@@ -66,7 +79,10 @@ export class CatsPickerComponent implements OnInit{
         // empty local var
         this.catsArr = [];
       }
-    });
+    }); 
+
+    // emit state selection
+    this.selectState(this.selected_state);
   }
 
   // add cat
@@ -93,5 +109,15 @@ export class CatsPickerComponent implements OnInit{
   async deselectCat(){
     // output cat selection to parent component
      this.cat_selection.emit("");
+  }
+
+  // output selected state
+  async selectState(selected_state: boolean | string){
+    if(typeof selected_state == "boolean"){
+      this.state_selection.emit(selected_state);
+    }
+    else{
+      this.state_selection.emit(null);
+    }
   }
 }

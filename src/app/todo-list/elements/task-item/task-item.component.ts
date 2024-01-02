@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Task } from '../../model/task';
 import { TaskNode } from '../../model/taskNode';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
@@ -71,14 +71,13 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
   styles: [
   ]
 })
-export class TaskItemComponent {
+export class TaskItemComponent{
   @Input() task!: Task;
   newTask: Task = new Task();
   updated_task: Task = new Task();
   catsList: any[] = [];
 
-  constructor(private taskService: TodoListService){
-  }
+  constructor(private taskService: TodoListService){}
 
   // set updated_task info to original value
   assign_old_value(task: Task){

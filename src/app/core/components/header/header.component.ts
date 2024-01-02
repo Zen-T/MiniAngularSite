@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FirestoreService } from '../../service/firestore.service';
 import { AuthFirebaseService } from '../../service/auth-firebase.service';
 import { onIdTokenChanged } from 'firebase/auth';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
 
 @Component({
   selector: 'app-header',
@@ -66,7 +67,6 @@ import { onIdTokenChanged } from 'firebase/auth';
 })
 export class HeaderComponent {
   userName: string = "";
-  userID: string | null= "";
   
   constructor(
     private dbService: FirestoreService,
@@ -74,11 +74,12 @@ export class HeaderComponent {
     ){
       onIdTokenChanged(this.authService.auth, async (user) => {
         if (user) {
-          this.userID = user.uid;
-          const userInfo = await this.dbService.retrieveDocDate("");
-          this.userName = userInfo.userName;
+          // subscribe database user name changes
+          onSnapshot(doc(this.dbService.db, "Users", user.uid), async (doc) => {
+            const userInfo = await this.dbService.retrieveDocDate("");
+            this.userName = userInfo.userName;
+          });
         } else {
-          this.userID = null;
           this.userName = "";
         }
       });

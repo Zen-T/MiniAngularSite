@@ -17,6 +17,8 @@ import { TaskItemComponent } from './elements/task-item/task-item.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskTreeItemComponent } from './elements/task-tree-item/task-tree-item.component';
 import { AddTaskComponent } from './elements/add-task/add-task.component';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
@@ -41,6 +43,8 @@ import { AddTaskComponent } from './elements/add-task/add-task.component';
     MatIconModule,
     MatTreeModule,
     DragDropModule,
+    MatSelectModule,
+    MatFormFieldModule
   ]
 })
 export class TodoListModule { }
