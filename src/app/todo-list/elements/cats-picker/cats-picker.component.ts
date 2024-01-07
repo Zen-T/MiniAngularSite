@@ -5,46 +5,63 @@ import { AuthFirebaseService } from 'src/app/core/service/auth-firebase.service'
 import { onIdTokenChanged } from 'firebase/auth';
 import { FirestoreService } from 'src/app/core/service/firestore.service';
 import { QueryConstraint, doc, onSnapshot } from 'firebase/firestore';
-
+import { MatChipSelectionChange } from '@angular/material/chips';
+import {MatFormFieldModule} from '@angular/material/form-field';
 
 @Component({
   selector: 'app-cats-picker',
   template: `
     <link rel="stylesheet" href="cats-picker.component.css">
-
-    <!-- tasks state selector -->
-    <mat-form-field style="width: 100%;">
-      <mat-label>show task</mat-label>
-      <mat-select [(value)]="selected_state" (selectionChange)="selectState(selected_state)">
-        <mat-option value="null">All</mat-option>
-        <mat-option [value]="false">To Do</mat-option>
-        <mat-option [value]="true">Done</mat-option>
-      </mat-select>
-    </mat-form-field>
-
+    
     <!-- app container -->
-    <div class="cats-list-container">
+    <div class="app-container">
+
       <!-- cat add container -->
       <div class="add-cat-container">
-          <input [(ngModel)]="new_cat_name" type="text">
-          <button (click)="addCat(new_cat_name)">add cat</button>
+        <!-- new cat input box -->
+        <div class="add-cat-name-box">
+          <input 
+            class="input" 
+            placeholder="New Cat Name" 
+            type="text"
+            name="newCatName"
+            [(ngModel)]="new_cat_name"
+            #newTaskInput = "ngModel"
+            (keyup.enter)="addCat()"
+            required
+          >
+        </div>
+        <!-- add button -->
+        <div class="add-cat-button">
+          <button 
+            class="button hero is-primary is-bold"
+            type="submit"
+            [disabled]="newTaskInput.invalid"
+            (click)="addCat()">
+            ADD
+          </button>
+        </div>
       </div>
-      <!-- cat viewer container -->
-      <div class="cats-viewer">
-        <!-- cat list -->
-        <ul class="cats-list" *ngIf="catsArr!==[]">
-          <!-- Deselect cat -->
-          <button (click)="deselectCat()">deselect</button>
-          <!-- cat item -->
-          <div class="cat-item" *ngFor="let cat of catsArr" id="{{cat.name}}">
-            <!-- cat-name -->
-            <li class="cat-name" (click)="selectCat(cat.name)">
-              {{ cat.name }}
-            </li>
-          </div>
-        </ul>
+
+      <!-- cats selector -->
+      <mat-chip-listbox class="cats-selector mat-mdc-chip-set-stacked" aria-label="Color selection">
+        <mat-chip-option class="cat-button" *ngFor="let cat of catsArr" (selectionChange)="selectCat($event)">{{cat.name}}</mat-chip-option>
+      </mat-chip-listbox>    
+
+      <!-- tasks state selector -->
+      <div class="state-selector">
+        <mat-form-field subscriptSizing="dynamic" style="width: 100%;">
+          <mat-label>show tasks</mat-label>
+          <mat-select [(value)]="selected_state" (selectionChange)="selectState(selected_state)">
+            <mat-option value="">All</mat-option>
+            <mat-option [value]="false">To Do</mat-option>
+            <mat-option [value]="true">Done</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
+      
     </div>
+
   `,
   styles: [
   ]
@@ -52,6 +69,7 @@ import { QueryConstraint, doc, onSnapshot } from 'firebase/firestore';
 export class CatsPickerComponent implements OnInit{
   @Output() cat_selection =  new EventEmitter<string>();
   @Output() state_selection =  new EventEmitter<boolean | null>();
+
 
   catsArr: any[] = [];
   new_cat_name: string = "";
@@ -86,9 +104,12 @@ export class CatsPickerComponent implements OnInit{
   }
 
   // add cat
-  async addCat(cat_name: string){
-    await this.taskService.addCat(cat_name);
-    this.ngOnInit();
+  async addCat(){
+    if(this.new_cat_name != ""){
+      await this.taskService.addCat(this.new_cat_name);
+      this.new_cat_name = "";
+      this.ngOnInit();
+    }
   }
 
   // remove cat
@@ -101,18 +122,20 @@ export class CatsPickerComponent implements OnInit{
   }
 
   // output selected cat 
-  async selectCat(cat_name: string){
-    this.cat_selection.emit(cat_name);
-  }
-
-  // deselect cat
-  async deselectCat(){
-    // output cat selection to parent component
-     this.cat_selection.emit("");
+  selectCat(catChange: MatChipSelectionChange){
+    // selected chip
+    if(catChange.selected){
+      const cat_name = catChange.source.value;
+      this.cat_selection.emit(cat_name);
+    }
+    // unselected chip
+    else{
+      this.cat_selection.emit("");
+    }
   }
 
   // output selected state
-  async selectState(selected_state: boolean | string){
+  selectState(selected_state: boolean | string){
     if(typeof selected_state == "boolean"){
       this.state_selection.emit(selected_state);
     }

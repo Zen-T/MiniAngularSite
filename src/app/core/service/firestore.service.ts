@@ -70,13 +70,33 @@ export class FirestoreService{
           console.error("Error adding document: ", e);
         }
       } else {
-        console.error("not key exsits in map")
+        console.error("not key exsits in new map")
       }
     } else{
       console.error("Can not add map to doc: No user logged in")
     }
 
     return suc;
+  }
+
+  // add time stamp to doc
+  async addTimeStampInDoc(docPath: string, timeStampName: string){
+    if (this.userID != null){
+      try {
+        // set docRef
+        const docRef = doc(this.db, "Users", this.userID, docPath);
+
+        // add server time stamp inside map's first key
+        const timeStamp = {[timeStampName]: serverTimestamp()};
+        await setDoc(docRef, timeStamp, { merge : true }); // new data merged into the existing document
+        // await updateDoc(docRef, timeStamp); // update data into the existing document
+        
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    } else{
+      console.error("Can not add map to doc: No user logged in")
+    }
   }
 
   // merge Map to an Doc with time stamp

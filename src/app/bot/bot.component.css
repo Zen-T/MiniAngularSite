@@ -59,6 +59,10 @@
 
 .chat-title p.title-name {
   flex: 1;
+  display: flex;
+  align-items: center;
+  margin: 0px;
+  margin-top: 0px;
 }
 
 .chat-title img.del {

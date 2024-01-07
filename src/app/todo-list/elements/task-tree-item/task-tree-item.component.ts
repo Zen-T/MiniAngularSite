@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, Renderer2 } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
 import { TaskNode } from '../../model/taskNode';
 import { CdkDrag, CdkDragDrop, CdkDragEnter, CdkDragExit, CdkDragMove, CdkDragRelease, CdkDragSortEvent, CdkDragStart} from '@angular/cdk/drag-drop';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
@@ -24,9 +24,9 @@ import { Task } from '../../model/task';
           <div class="cdk-drag-placeholder" *cdkDragPlaceholder></div>
           <!-- button hide task children -->
           <div cdkDragHandle class="collapse-button">
-            <img src="assets/icon/circle-regular.svg" *ngIf="!taskNode.task_children.length"> <!-- no children -->
-            <img src="assets/icon/circle-right-regular.svg" *ngIf="taskNode.task_children.length && !showChildren" (click)="collapse()"> <!-- children hide -->
-            <img src="assets/icon/circle-down-regular.svg" *ngIf="taskNode.task_children.length && showChildren" (click)="collapse()"> <!-- children show -->
+            <img [ngClass]="{'done-task': taskNode.task_info.done}" src="assets/icon/circle-regular.svg" *ngIf="!taskNode.task_children.length"> <!-- no children -->
+            <img [ngClass]="{'done-task': taskNode.task_info.done}" src="assets/icon/circle-right-regular.svg" *ngIf="taskNode.task_children.length && !showChildren" (click)="collapse()"> <!-- children hide -->
+            <img [ngClass]="{'done-task': taskNode.task_info.done}" src="assets/icon/circle-down-regular.svg" *ngIf="taskNode.task_children.length && showChildren" (click)="collapse()"> <!-- children show -->
           </div>
           <!-- task item -->
           <app-task-item class="task-item" [task]="taskNode.task_info"></app-task-item>
@@ -35,7 +35,7 @@ import { Task } from '../../model/task';
     </div>
 
     <!-- task children -->
-    <div *ngIf="showChildren">
+    <div *ngIf="!(this.taskNode.task_info.show_child == false) && showChildren">
       <div *ngFor="let childrenNode of taskNode.task_children">
         <app-task-tree-item [taskNode]="childrenNode" ></app-task-tree-item>
       </div>
@@ -44,17 +44,24 @@ import { Task } from '../../model/task';
   styles: [
   ]
 })
-export class TaskTreeItemComponent {
+export class TaskTreeItemComponent implements OnInit{
   @Input() taskNode!: TaskNode;
   constructor(private taskService: TodoListService,
               private renderer: Renderer2,
               private el: ElementRef){}
 
+  ngOnInit(){
+    try {if(this.taskNode.task_info.show_child != undefined){
+      this.showChildren = this.taskNode.task_info.show_child;
+    }} catch(e){}
+  }
+  
   showChildren: boolean = true;
   originSlot: any;
 
   collapse(){
     this.showChildren = !this.showChildren;
+    this.taskService.updateTaskField(this.taskNode.task_info.id, {"show_child" : this.showChildren});
   }
 
   async dropToChangeParent(event: CdkDragDrop<string[]>) {
@@ -72,51 +79,87 @@ export class TaskTreeItemComponent {
 
     // assign new parent to source task
     if(old_parent_ID != new_parent_Id){
-      this.assignNewParent(source_task_ID, old_parent_ID, new_parent_Id);
+      // new parent can not be its children (a task can not be its own children task)
+      if(!this.taskNode.task_parents_id.includes(source_task_ID)){
+        this.assignNewParent(source_task_ID, old_parent_ID, new_parent_Id);
+      }
+      else{
+        console.log("can not be its own children")
+      }
     }
+  }
+  
+  async checkNewParentNotItsOwnChild(parent_id: string, source_id: string): Promise <boolean>{
+    if(parent_id != ""){
+      // get parent task info
+      let parent_task: Task = await this.taskService.getTask(parent_id);
+      // check if parent is the source
+      if(parent_task.id == source_id){
+        return false;
+      }
+      return this.checkNewParentNotItsOwnChild(parent_task.parent_task, source_id);
+    }
+    return true;
+
   }
 
   async assignNewParent(source_task_ID: string, old_parent_ID: string, new_parent_Id: string){
     // check if new parent
     if(old_parent_ID != new_parent_Id){
-      // find old parent
-      if(old_parent_ID != ""){
-        // get old parent task info
-        let old_parent_task: Task = await this.taskService.getTask(old_parent_ID);
 
-        // remove id from old parent
-        if(old_parent_task.id == old_parent_ID){
-          old_parent_task.child_tasks = old_parent_task.child_tasks.filter(task_id => task_id !== source_task_ID);
-          await this.taskService.updateTask(old_parent_task);
+      // check if new parent is its own children
+      if(await this.checkNewParentNotItsOwnChild(new_parent_Id, source_task_ID)){
+
+        // find old parent
+        if(old_parent_ID != ""){
+          // get old parent task info
+          let old_parent_task: Task = await this.taskService.getTask(old_parent_ID);
+
+          // remove id from old parent
+          if(old_parent_task.id == old_parent_ID){
+            old_parent_task.child_tasks = old_parent_task.child_tasks.filter(task_id => task_id !== source_task_ID);
+            await this.taskService.updateTask(old_parent_task);
+          }
+        }
+
+        // assign id to new parent
+        let new_parent_cat = null;
+        if(new_parent_Id != ""){
+          // get new parent task info
+          let new_parent_task: Task = await this.taskService.getTask(new_parent_Id);
+
+          // get new parent cat
+          new_parent_cat = new_parent_task.cat;
+
+          // add id to new parent's children
+          if(new_parent_task.id == new_parent_Id){
+            new_parent_task.child_tasks.push(source_task_ID);
+            await this.taskService.updateTask(new_parent_task);
+          }
+        }
+
+        // assign new parent id & cat
+        let updated_task: Task = await this.taskService.getTask(source_task_ID);
+        if(updated_task.id == source_task_ID){
+          updated_task.parent_task = new_parent_Id;
+          if(new_parent_cat){
+            updated_task.cat = new_parent_cat;
+          }
+          await this.taskService.updateTask(updated_task);
         }
       }
-
-      // assign id to new parent
-      if(new_parent_Id != ""){
-        // get new parent task info
-        let new_parent_task: Task = await this.taskService.getTask(new_parent_Id);
-
-        // add id to new parent's children
-        if(new_parent_task.id == new_parent_Id){
-          new_parent_task.child_tasks.push(source_task_ID);
-          await this.taskService.updateTask(new_parent_task);
-        }
+      else{
+        console.log("can not be its own children")
       }
 
-      // assign new parent id
-      let updated_task: Task = await this.taskService.getTask(source_task_ID);
-      if(updated_task.id == source_task_ID){
-        updated_task.parent_task = new_parent_Id;
-        await this.taskService.updateTask(updated_task);
-      }
     }
   }
 
   enterList(event: CdkDragEnter<any>){
     // show parents block
     event.container.element.nativeElement.querySelectorAll('.task-parents').forEach((target_element)=>{
-      this.renderer.setStyle(target_element, 'background-color', '#ddda70');
-      this.renderer.setStyle(target_element, 'border-right', 'solid #00ffb138');
+      this.renderer.setStyle(target_element, 'background-color', '#8bffe49c ');
+      this.renderer.setStyle(target_element, 'border-right', 'solid #f9f90075 ');
     })
 
     // preview parent name when enter a drag list
@@ -126,8 +169,8 @@ export class TaskTreeItemComponent {
 
     // show task item width block
     event.container.element.nativeElement.querySelectorAll('.task-and-collapse-button').forEach((target_element)=>{
-      this.renderer.setStyle(target_element, 'background-color', '#ddda70');
-      this.renderer.setStyle(target_element, 'border-right', 'solid #00ffb138');
+      this.renderer.setStyle(target_element, 'background-color', '#8bffe49c ');
+      this.renderer.setStyle(target_element, 'border-right', 'solid #f9f90075 ');
     })
   }
 
@@ -165,8 +208,8 @@ export class TaskTreeItemComponent {
 
     // show this task's parents block when drag start
     event.source.dropContainer.element.nativeElement.querySelectorAll('.task-parents').forEach((target_element)=>{
-      this.renderer.setStyle(target_element, 'background-color', '#ddda70');
-      this.renderer.setStyle(target_element, 'border-right', 'solid #00ffb138');
+      this.renderer.setStyle(target_element, 'background-color', '#8bffe49c ');
+      this.renderer.setStyle(target_element, 'border-right', 'solid #f9f90075 ');
     })
 
     // show this task's parents name when drag start
@@ -176,7 +219,7 @@ export class TaskTreeItemComponent {
 
     // show task original slot
     this.originSlot = event.source.dropContainer.element.nativeElement;
-    this.renderer.setStyle(this.originSlot, 'background-color', '#d0e2c3');
+    this.renderer.setStyle(this.originSlot, 'background-color', '#c3e2d3cc');
 
   }
 

@@ -5,7 +5,7 @@ import { AuthFirebaseService } from '../core/service/auth-firebase.service';
 import { FirestoreService } from '../core/service/firestore.service';
 import { TodoListService } from '../core/service/todo-list.service';
 import { Task } from '../todo-list/model/task';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { Timestamp, collection, doc, onSnapshot } from 'firebase/firestore';
 
 @Component({
   selector: 'app-todo-list',
@@ -25,13 +25,13 @@ import { collection, doc, onSnapshot } from 'firebase/firestore';
       <!-- list of tasks -->
       <div class="tasks-container">
         <!-- tasks tree -->
-        <app-add-task [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-add-task>
+        <app-add-task [newTaskCat]="this.cat_selection" [newTaskDateDue]="this.date_selection"></app-add-task>
         <app-tasks-tree [tasksArr]="tasksArr"></app-tasks-tree>
         <!-- <app-tasks-viewer [tasksArr]="tasksArr" [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-tasks-viewer> -->
       </div>
       <!-- date picker -->
       <div class="datePicker-container">
-        <app-date-picker-hori (date_selection)="selectDate($event)"></app-date-picker-hori>
+        <app-date-picker-hori class="app-date-picker-hori" (date_selection)="selectDate($event)"></app-date-picker-hori>
       </div>
     </div>
   </div>
@@ -48,7 +48,7 @@ export class TodoListComponent implements OnInit{
     private storeService: FirestoreService){}
 
   cat_selection: string = "";
-  date_selection: number = 0;
+  date_selection!: Date | null;
   state_selection!: boolean | null;
 
   tasksArr: Task[] = [];
@@ -84,17 +84,18 @@ export class TodoListComponent implements OnInit{
 
     // build date Constraint Map for DB request
     let dateConstraintMap = {};
-    if(this.date_selection != 0){
-      dateConstraintMap =  {key:"day", opt:"==", val: this.date_selection};
+    if(this.date_selection != null){
+      let yyyymmdd: number = this.date_selection.getFullYear() * 10000 + (this.date_selection.getMonth()+1)  * 100 + this.date_selection.getDate();
+      dateConstraintMap =  {key:"date_due", opt:"==", val: yyyymmdd};
     }
 
-    // build date Constraint Map for DB request
+    // build task state Constraint Map for DB request
     let stateConstraintMap = {};
     if(this.state_selection != null){
       stateConstraintMap =  {key:"done", opt:"==", val: this.state_selection};
     }
 
-    this.tasksArr = await this.taskService.getDateTasks([catConstraintMap, dateConstraintMap, stateConstraintMap]);
+    this.tasksArr = await this.taskService.getTasksByConstraints([catConstraintMap, dateConstraintMap, stateConstraintMap]);
   }
 
   // select cat
@@ -107,7 +108,7 @@ export class TodoListComponent implements OnInit{
   }
 
   // select date
-  async selectDate(date_selection: number){
+  async selectDate(date_selection: Date | null){
     // update date selection
     this.date_selection = date_selection;
     
@@ -119,7 +120,6 @@ export class TodoListComponent implements OnInit{
   async selectState(state_selection: boolean | null){
     // update date selection
     this.state_selection = state_selection;
-    console.log(state_selection)
     
     // update tasks array
     this.get_tasks();

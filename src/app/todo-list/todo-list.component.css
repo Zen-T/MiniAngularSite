@@ -7,27 +7,35 @@
 .category-container{
   height: 100%;
   width: 13%;
-  background-color: aquamarine;
+  background-color: rgba(127, 255, 212, 0.548);
   overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
 }
 
 .todoList-container{
   height: 100%;
   flex: 1;
-  background-color: rgb(255, 127, 127);
+  background-color: rgba(151, 255, 184, 0);
   display: flex; /* 元素flex排列 */
   flex-direction: column; /* flex纵向排列 */
 }
 
 .tasks-container{
   flex: 1;
-  background-color: rgb(255 236 152);
+  background-color: rgba(255, 238, 165, 0.75);
   overflow: auto; /*内容溢出时才显示滚动条 */
 }
 
 .datePicker-container{
   height: 12%;
-  background-color: rgb(137, 136, 210)
+  background-color: rgba(137, 136, 210, 0.747)
+}
+
+.app-date-picker-hori{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: end;
 }
 
 .checked {

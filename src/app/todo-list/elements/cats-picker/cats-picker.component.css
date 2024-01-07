@@ -1,0 +1,29 @@
+.app-container{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-cat-container{
+    flex: 0 0 auto; /* 不拉伸，不收缩，保持原始大小 */
+    display: flex;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.cats-selector{
+  flex: 1;
+  overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
+}
+
+.cat-button{
+    background-color: #3cb8e27a !important;
+    height: 28px;
+    border-radius: 6px !important;
+    margin-top: 0px !important;
+    margin-bottom: 5px !important;
+}
+
+.state-selector{
+    flex: 0 0 auto; /* 不拉伸，不收缩，保持原始大小 */
+}

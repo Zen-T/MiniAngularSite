@@ -5,6 +5,9 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  background-color: #9abacd29 !important;
+  border-radius: 9px;
+  margin-bottom: 5px;
 }
 
 /* fix width for drag to select lvl */
@@ -33,11 +36,15 @@
 
 /* collapse button placeholder for aligenment */
 .collapse-button{
-  width: 30px !important; 
 }
 
 .collapse-button img{
-  width: 30px !important; 
+  width: 30px !important;
+  border-radius: 100% 
+}
+
+.collapse-button .done-task{
+  background: #a4f6a5;
 }
 
 .task-item{
@@ -58,9 +65,9 @@
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 4px;
-  box-shadow: 0 5px 5px -3px rgba(7, 247, 3, 0.2),
-              0 8px 10px 1px rgba(70, 185, 17, 0.14),
-              0 3px 14px 2px rgba(45, 236, 6, 0.12);
+  box-shadow: 0 5px 5px -3px rgba(3, 247, 235, 0.2),
+              0 8px 10px 1px rgba(17, 185, 146, 0.14),
+              0 3px 14px 2px rgba(6, 228, 236, 0.12);
 }
 
 /* drag item placeholder */
@@ -68,8 +75,8 @@
   width: 65px;
   height: 90px;
   flex: 0 0 auto; /* avoid width and height being affected by flex */
-  background: #61cfb9;
-  border: outset 2px #567d84;
+  background: #51daf2c9 !important;
+  border: solid #f1ff00f0 !important;
   border-radius: 6px;
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

@@ -39,18 +39,76 @@
   text-wrap: nowrap;
 }
 
+.task-info-widget{
+  display: flex;
+}
 .task-done {
   text-decoration: line-through;
 }
 
-.est-time{
+.due-date-picker{
+  display: flex;
+  flex-direction: row;
+  max-width: 200px;
 }
+
+img.clear-date{
+  background-color: #ff6a6aa3;
+  height: 15px;
+  width: 16px;
+  border-radius: 100%;
+  display: none;
+}
+
+.due-date-picker:hover img.clear-date{
+  display: initial;
+}
+
+.add-due-date-button{
+  padding: 5px;
+  height: 26px;
+}
+
+.show-due-date-button{
+  padding: 5px;
+  height: 26px;
+  background-color: #eeeeee !important;
+}
+
+.due-soon{
+  background-color: #b1fc53c9 !important;
+}
+
+.due-urgent{
+  background-color: #a9ffe4c2 !important;
+}
+
+.due-now{
+  background-color: #ff552ac7 !important;
+}
+
+.due-passed{
+  background-color: #ba88fdfa !important;
+}
+
 
 .done-button{
   width: 70%;
   height: 60px; 
   background-color: transparent;
   border: none;
+}
+
+.add-est-time-button{
+  padding: 5px;
+  height: 26px;
+  color: #00000096 !important;
+}
+
+.show-est-time-button{
+  padding: 5px;
+  height: 26px;
+  background-color: #eeeeee !important;
 }
 
 /* task item right */
