@@ -1,0 +1,61 @@
+.mat-mdc-dialog-container{
+    border-radius: 39px;
+}
+
+header{
+    background: #f9dedc;
+    color: #8c1d18;
+    padding: 27px;
+}
+
+header h1{
+    align-items: center;
+    display: inline-flex;
+    color: #8c1d18;
+    padding: 0px;
+}
+
+.dialog-body{
+    padding: 28px
+}
+
+.dialog-body > div{
+    padding: 0px;
+    padding-bottom: 12px;
+}
+
+.dialog-type-key{
+    padding-bottom: 27px;
+}
+
+.dialog-body input{
+    outline: 2px solid #b0b0b0;
+    border: 0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: var(--theme-color-fg-primary);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+    margin: 0;
+    max-width: 100%;
+    padding: 8px;
+    -webkit-transition: box-shadow .15s;
+    transition: box-shadow .15s;
+    vertical-align: middle;
+    box-shadow: 0 0 0 2px transparent inset,0 0 0 1px var(--theme-color-fg-default-border) inset;
+    width: 390px;
+    max-height: 36px;
+}
+
+.dialog-action{
+    padding: 23px;
+}
+
+button.deleteDisable{
+    background-color: #ff9595;
+}
+
+button.deleteEnable{
+    background-color: red !important;
+}

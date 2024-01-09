@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, Renderer2, RendererStyleFlags2 } from '@angular/core';
 import { TaskNode } from '../../model/taskNode';
 import { CdkDrag, CdkDragDrop, CdkDragEnter, CdkDragExit, CdkDragMove, CdkDragRelease, CdkDragSortEvent, CdkDragStart} from '@angular/cdk/drag-drop';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
@@ -57,7 +57,7 @@ export class TaskTreeItemComponent implements OnInit{
   }
   
   showChildren: boolean = true;
-  originSlot: any;
+  sourceSlot: any;
 
   collapse(){
     this.showChildren = !this.showChildren;
@@ -115,10 +115,10 @@ export class TaskTreeItemComponent implements OnInit{
           // get old parent task info
           let old_parent_task: Task = await this.taskService.getTask(old_parent_ID);
 
-          // remove id from old parent
+          // remove source id from old parent
           if(old_parent_task.id == old_parent_ID){
             old_parent_task.child_tasks = old_parent_task.child_tasks.filter(task_id => task_id !== source_task_ID);
-            await this.taskService.updateTask(old_parent_task);
+            await this.taskService.updateTaskField(old_parent_task.id, {"child_tasks": old_parent_task.child_tasks});
           }
         }
 
@@ -134,7 +134,7 @@ export class TaskTreeItemComponent implements OnInit{
           // add id to new parent's children
           if(new_parent_task.id == new_parent_Id){
             new_parent_task.child_tasks.push(source_task_ID);
-            await this.taskService.updateTask(new_parent_task);
+            await this.taskService.updateTaskField(new_parent_task.id, {"child_tasks": new_parent_task.child_tasks});
           }
         }
 
@@ -143,9 +143,10 @@ export class TaskTreeItemComponent implements OnInit{
         if(updated_task.id == source_task_ID){
           updated_task.parent_task = new_parent_Id;
           if(new_parent_cat){
-            updated_task.cat = new_parent_cat;
+            await this.taskService.updateTaskField(updated_task.id, {"parent_task": new_parent_Id, "cat": new_parent_cat});
+          }else{
+            await this.taskService.updateTaskField(updated_task.id, {"parent_task": new_parent_Id});
           }
-          await this.taskService.updateTask(updated_task);
         }
       }
       else{
@@ -183,7 +184,7 @@ export class TaskTreeItemComponent implements OnInit{
 
     // hide parent name when enter a drag list
     event.container.element.nativeElement.querySelectorAll('.task-parents-name').forEach((target_element)=>{
-      this.renderer.setStyle(target_element, 'display', 'none');
+      this.renderer.setStyle(target_element, 'display', '');
     })
 
     // hide parent name when enter a drag list
@@ -218,8 +219,8 @@ export class TaskTreeItemComponent implements OnInit{
     })
 
     // show task original slot
-    this.originSlot = event.source.dropContainer.element.nativeElement;
-    this.renderer.setStyle(this.originSlot, 'background-color', '#c3e2d3cc');
+    this.sourceSlot = event.source.dropContainer.element.nativeElement;
+    this.renderer.setStyle(this.sourceSlot, 'background-color', '#18d7c252', RendererStyleFlags2.Important);
 
   }
 
@@ -228,6 +229,7 @@ export class TaskTreeItemComponent implements OnInit{
 
     // 1. recover from shorten task item width
     document.querySelectorAll('.task-and-collapse-button').forEach((target_element)=>{
+      this.renderer.setStyle(target_element, 'background-color', '');
       this.renderer.setStyle(target_element, 'width', '100%');
     })
 
@@ -238,17 +240,17 @@ export class TaskTreeItemComponent implements OnInit{
 
     // hide all parents block in this page
     document.querySelectorAll('.task-parents').forEach((target_element)=>{
-      this.renderer.setStyle(target_element, 'background-color', 'transparent');
+      this.renderer.setStyle(target_element, 'background-color', '');
       this.renderer.setStyle(target_element, 'border-right', 'none');
     })
 
     // hide parents name in this page
     document.querySelectorAll('.task-parents-name').forEach((target_element)=>{
-      this.renderer.setStyle(target_element, 'display', 'none');
+      this.renderer.setStyle(target_element, 'display', '');
     })
 
     // hide task original slot
-    this.renderer.setStyle(this.originSlot, 'background-color', 'transparent');
-    this.originSlot = null;
+    this.renderer.setStyle(this.sourceSlot, 'background-color', '');
+    this.sourceSlot = null;
   }
 }

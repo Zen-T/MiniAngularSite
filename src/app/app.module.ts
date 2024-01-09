@@ -20,6 +20,8 @@ import { LoginComponent } from './login/login.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TodoListModule } from './todo-list/todo-list.module';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -30,7 +32,6 @@ import { TodoListModule } from './todo-list/todo-list.module';
     PriceWatchComponent,
     Reconstruct3dComponent,
     MindMapComponent,
-    AppComponent,
     BotComponent,
     LoginComponent,
   ],
@@ -44,6 +45,8 @@ import { TodoListModule } from './todo-list/todo-list.module';
     BrowserAnimationsModule,
     MatProgressBarModule,
     TodoListModule,
+    MatButtonModule,
+    MatDialogModule
   ],
   providers: [
   ],

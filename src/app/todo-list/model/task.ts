@@ -1,10 +1,10 @@
 import { Timestamp } from "firebase/firestore";
 
 export class Task {
-    id: string = "";
+    id: string = ""; // unique id
 
-    name: string = "";
-    detail: string = "";
+    name: string = ""; // title of task
+    detail: string = ""; // detail description of task
 
     importance: number = 0;
 
@@ -20,8 +20,8 @@ export class Task {
     time_started: string | null= null;
     time_done: string | null= null;
     
-    time_est: number | null = 0;
-    time_used: number | null = 0;
+    time_est: number = 0;
+    time_used: number = 0;
 
     cat: string = "";
     sub_cat: string = "";
@@ -38,7 +38,7 @@ export class Task {
         id: string, name: string, detail: string, importance: number, 
         date_created: number | null, date_due: number | null, date_started: number | null, date_done: number | null, 
         time_created: string | null, time_due: string | null, time_started: string | null, time_done: string | null, 
-        time_est: number | null, time_used: number | null, cat: string, sub_cat: string, tag: string[], 
+        time_est: number, time_used: number, cat: string, sub_cat: string, tag: string[], 
         parent_task: string, child_tasks: string[], task_level: number, show_child: boolean, done: boolean) {
 
         this.id = id;

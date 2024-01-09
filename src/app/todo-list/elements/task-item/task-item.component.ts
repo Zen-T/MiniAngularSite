@@ -1,123 +1,139 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Task } from '../../model/task';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
-import { MatCalendarCellClassFunction } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-task-item',
   styleUrls: ["task-item.component.css"],
   template: `
-    <!-- <link rel="stylesheet" href="task-item.component.css"> -->
-    
     <li class="task-item">
-          <!-- left of the task item -->
-          <div class="task-item-lef">
-            <!-- tag img -->
-            <div class="tag-img">
-              <img src="assets/icon/edit.png">
-            </div>
-            <!-- cat selection -->
-            <div class="cat-select">
-              <button mat-button [matMenuTriggerFor]="cats" (click)="getCatsList()">{{ task.cat }}</button>
-              <mat-menu #cats="matMenu">
-                <div *ngFor="let cat of catsList">
-                <button mat-menu-item (click)="update_task_cat(task, cat.name)">{{cat.name}}</button>
+      <!-- left of the task item -->
+      <div class="task-item-lef">
+        <!-- tag img -->
+        <div class="tag-img">
+          <img src="assets/icon/edit.png">
+        </div>
+        <!-- cat selection -->
+        <div class="cat-select">
+          <button mat-button [matMenuTriggerFor]="cats" (click)="getCatsList()">{{ task.cat }}</button>
+          <mat-menu #cats="matMenu">
+            <button mat-menu-item (click)="update_task_cat('')"></button>
+            <button *ngFor="let cat of catsList" mat-menu-item (click)="update_task_cat(cat.name)">{{cat.name}}</button>
+          </mat-menu>
+        </div>
+      </div>
+      <!-- middle of the task item -->
+      <div class="task-item-mid">
+        <!-- editable task name -->
+        <div class="task-name">
+          <editable (click)="assign_origin_task_name()" (save)="update_task_name()">
+            <ng-template viewMode>
+              <div [ngClass]="{'task-done':task.done}">{{ task.name }}</div>
+            </ng-template>
+            <ng-template editMode>
+              <input editableOnEnter editableOnEscape [(ngModel)]="updated_task_name" style="height: 35px; width: 100%; font-size: x-large;"/>
+            </ng-template>
+          </editable>
+        </div>
+        <!-- task info widget -->
+        <div class="task-info-widget">
+          <!-- due date picker -->
+          <div class="due-date-picker">
+            <mat-form-field style="display: none;">
+              <input matInput [matDatepicker]="picker"  [value]="task.time_due" (dateInput)="selectDueDate($event.value)">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker touchUi #picker>
+              </mat-datepicker>
+            </mat-form-field>
+            <!-- basic button for task without due date -->
+            <div *ngIf="!this.task.time_due"  class="add-due-date-button" >
+              <button mat-button (click)="picker.open()">
+                <div class="button-label">
+                  <img class="calendar-icon" src="assets/icon/calendar-plus-light.svg">
                 </div>
-              </mat-menu>
+              </button>
+            </div>
+            <!-- raised-button for task with due date -->
+            <div *ngIf="this.task.time_due" class="show-due-date-button">
+              <button mat-raised-button [ngClass]="due_color" (click)="picker.open()">
+                <div class="button-label">
+                  <img class="calendar-icon" src="assets/icon/calendar-plus-regular.svg">
+                  <p>{{ due_reminder }}</p>
+                </div>
+              </button>
+              <!-- img-button for clear date input -->
+              <img class="clear-date" src="assets/icon/circle-xmark-regular.svg" (click)="clearPickedDate()">
             </div>
           </div>
-          <!-- middle of the task item -->
-          <div class="task-item-mid">
-            <!-- editable task name -->
-            <div class="task-name">
-              <editable  (click)="assign_old_value(task)" (save)="update_task(updated_task)">
-                <ng-template viewMode>
-                  <div [ngClass]="{'task-done':task.done}">{{ task.name }}</div>
-                </ng-template>
-                <ng-template editMode>
-                  <input editableOnEnter editableOnEscape [(ngModel)]="updated_task.name" style="height: 35px; width: 100%; font-size: x-large;"/>
-                </ng-template>
+          <!-- estimate time -->
+          <div class="est-time">
+            <!-- raised-button for task with EST TIME > 0 -->
+            <button *ngIf="this.task.time_est>0" class="show-est-time-button" mat-raised-button>
+              <editable (click)="assign_origin_task_est()" (save)="update_task_est()" >
+                  <ng-template viewMode>
+                    EST {{ task.time_est }} h
+                  </ng-template>
+                  <ng-template editMode>
+                    <input editableOnEnter editableOnEscape [(ngModel)]="updated_task_est" type="number" style="width: 50px;"/>
+                  </ng-template>
               </editable>
-            </div>
-            <!-- task info widget -->
-            <div class="task-info-widget">
-              <!-- due date picker -->
-              <div class="due-date-picker">
-                <mat-form-field style="display: none;">
-                  <input matInput [matDatepicker]="picker"  [value]="task.time_due" (dateInput)="selectDueDate($event.value)">
-                  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                  <mat-datepicker touchUi #picker>
-                  </mat-datepicker>
-                </mat-form-field>
-                <!-- raised-button for task with due date -->
-                <button *ngIf="this.task.time_due" class="show-due-date-button" mat-raised-button [ngClass]="button_color" (click)="picker.open()">
-                  <img src="assets/icon/calendar-plus-regular.svg">
-                  {{ due_reminder }}
-                </button>
-                <!-- basic button for task without due date -->
-                <button *ngIf="!this.task.time_due"  class="add-due-date-button" mat-button (click)="picker.open()">
-                  <img src="assets/icon/calendar-plus-regular.svg">
-                  {{ due_reminder }}
-                </button>
-                <img *ngIf="this.task.time_due" class="clear-date" src="assets/icon/circle-xmark-regular.svg" (click)="clearPickedDate()">
-              </div>
-              <!-- estimate time -->
-              <div class="est-time">
-                <!-- raised-button for task with EST TIME > 0 -->
-                <button *ngIf="this.task.time_est && this.task.time_est > 0" class="show-est-time-button" mat-raised-button>
-                  <editable (click)="assign_old_value(task)" (save)="update_task(updated_task)" >
-                      <ng-template viewMode>
-                        EST {{ task.time_est }} h
-                      </ng-template>
-                      <ng-template editMode>
-                        <input editableOnEnter editableOnEscape [(ngModel)]="updated_task.time_est" type="number" style="width: 50px;"/>
-                      </ng-template>
-                  </editable>
-                </button>
-                <!-- basic button for task with EST TIME == 0 -->
-                <button *ngIf="!this.task.time_est || this.task.time_est == 0" class="add-est-time-button" mat-button>
-                  <editable (click)="assign_old_value(task)" (save)="update_task(updated_task)" >
-                      <ng-template viewMode>
-                        EST
-                      </ng-template>
-                      <ng-template editMode>
-                        <input editableOnEnter editableOnEscape [(ngModel)]="updated_task.time_est" type="number" style="width: 50px;"/>
-                      </ng-template>
-                  </editable>
-                </button>
-              </div>
-            </div>
-            
+            </button>
+            <!-- basic button for task with EST TIME == 0 -->
+            <button *ngIf="!(this.task.time_est>0)" class="add-est-time-button" mat-button>
+              <editable (click)="assign_origin_task_est()" (save)="update_task_est()" >
+                  <ng-template viewMode>
+                    EST
+                  </ng-template>
+                  <ng-template editMode>
+                    <input editableOnEnter editableOnEscape [(ngModel)]="updated_task_est" type="number" style="width: 50px;"/>
+                  </ng-template>
+              </editable>
+            </button>
           </div>
-          <!-- middle of the task item -->
-          <div class="task-item-rig">          
-            <!-- check task -->
-            <div class="task-action-icon">
-              <img src="assets/icon/circle-check-regular.svg" (click)="toggle_task_state(task)">
-            </div>
-            <!-- edit task -->
-            <div class="task-action-icon">
-              <img src="assets/icon/pen-to-square-regular.svg">
-            </div>
-            <!-- delete task -->
-            <div class="task-action-icon">
-              <img src="assets/icon/trash-can-regular.svg" (click)="del_task(task.id)">
-            </div>
-          </div>
-        </li>
-  `
+        </div>
+        
+      </div>
+      <!-- middle of the task item -->
+      <div class="task-item-rig">          
+        <!-- check task -->
+        <div class="task-action-icon">
+          <img src="assets/icon/circle-check-regular.svg" (click)="toggle_task_state()">
+        </div>
+        <!-- edit task -->
+        <div class="task-action-icon">
+          <img src="assets/icon/pen-to-square-regular.svg">
+        </div>
+        <!-- delete task -->
+        <div class="task-action-icon">
+          <img src="assets/icon/trash-can-regular.svg" (click)="del_task()">
+        </div>
+      </div>
+    </li>
+`
 })
 export class TaskItemComponent implements OnInit{
   @Input() task!: Task;
-  newTask: Task = new Task();
-  updated_task: Task = new Task();
-  catsList: any[] = [];
+  catsList!: any[];
+
+  updated_task_name!: string;
+  updated_task_est: number = 0;
+
   due_reminder: string = "";
-  button_color: string = "";
+  due_color: string = "due-away";
 
   constructor(private taskService: TodoListService){}
 
   ngOnInit(){
+    // set looks for due date picker buttom
+    this.setDueButtomReminderAndcolor()
+    // assign updated_task_name
+    this.updated_task_name = this.task.name;
+    // assign updated_task_est
+    this.assign_origin_task_est()
+  }
+
+  // set Due Buttom Reminder text And color
+  setDueButtomReminderAndcolor(){
     if(this.task.time_due){
       // get task due time
       const taskDueDate = new Date(this.task.time_due)
@@ -125,55 +141,82 @@ export class TaskItemComponent implements OnInit{
       // get sys time
       const sysDate = new Date();
 
-      // get day before due
+      // calculate day before due
       let secBeforeDue = taskDueDate.getTime() - sysDate.getTime();
       let dayBeforeDue = Math.ceil(secBeforeDue / (1000*3600*24));
+
+      // set due buttom reminder and color
+      this.due_reminder = dayBeforeDue + " day left";
       if(dayBeforeDue>=0){
-        if(dayBeforeDue<=1){
-          this.due_reminder = dayBeforeDue + " day left";
-          this.button_color = "due-now"
-        }else{
-          this.due_reminder = dayBeforeDue + " days left";
-          if(dayBeforeDue<=7){
-            this.button_color = "due-soon"
-          }
-          if(dayBeforeDue<=3){
-            this.button_color = "due-urgent"
-          }
+        if(dayBeforeDue == 0){
+          this.due_reminder = "Due";
+          this.due_color = "due-today"
+        }
+        else if(dayBeforeDue == 1){
+          this.due_color = "due-urgent"
+        }
+        else if(dayBeforeDue <= 3){
+          this.due_color = "due-soon"
+        }
+        else if(dayBeforeDue <= 7){
+          this.due_color = "due-coming"
         }
       }else{
-        this.button_color = "due-passed"
-        if(dayBeforeDue==-1){
-          this.due_reminder = dayBeforeDue + " day over due";
-        }else{
-          this.due_reminder = dayBeforeDue + " days over due";
-        }
+        this.due_color = "due-passed"
+        this.due_reminder = -dayBeforeDue + " day over due";
       }
     }
   }
 
-  // set updated_task info to original value
-  assign_old_value(task: Task){
-    this.updated_task = task;
+  // assign origin name
+  async assign_origin_task_name(){
+      this.updated_task_name = this.task.name;
   }
 
-  // update task info
-  async update_task(updated_task : Task){
-    await this.taskService.updateTask(updated_task).then(()=>{});
-  }
-
-  // toggle task state
-  toggle_task_state(etask : Task){
-    etask.done = !etask.done;
-    this.update_task(etask)
-    if (etask.done){
-      this.taskService.addSysDateTime(etask, "done")
+  // update task name
+  async update_task_name(){
+    // check if task name changed
+    if(this.updated_task_name != "" && this.updated_task_name != this.task.name){
+      // update task name in db
+      await this.taskService.updateTaskField(this.task.id,  {"name" : this.updated_task_name});
+    }else{
+      // new name illegal, reset 
+      this.updated_task_name = this.task.name;
     }
   }
 
+  // assign origin est
+  async assign_origin_task_est(){
+    if(this.task.time_est > 0){
+      this.updated_task_est = this.task.time_est;
+    }else{
+      this.updated_task_est = 0;
+    }
+  }
+
+  // update task est
+  async update_task_est(){
+    // check if task est
+    console.log(this.updated_task_est)
+    console.log(this.task.time_est)
+
+    if(this.updated_task_est >= 0 && this.updated_task_est != this.task.time_est){
+      // update task est in db
+      await this.taskService.updateTaskField(this.task.id,  {"time_est" : this.updated_task_est});
+    }else{
+      // new name illegal, reset
+      this.assign_origin_task_est()
+    }
+  }
+
+  // toggle task state
+  async toggle_task_state(){
+    this.taskService.addSysDateTime(this.task.id, "done", !this.task.done)
+  }
+
   // del task
-  async del_task(task_Id: string){
-    await this.taskService.delTask(task_Id).then(()=>{});
+  async del_task(){
+    await this.taskService.delTask(this.task.id)
   }
 
   // get cats list
@@ -182,9 +225,11 @@ export class TaskItemComponent implements OnInit{
   }
 
   // update task cat
-  update_task_cat(etask : Task, cat_name: string){
-    etask.cat = cat_name;
-    this.update_task(etask)
+  async update_task_cat(cat_name: string){
+    // check if cat changed
+    if(cat_name != this.task.cat){
+      await this.taskService.updateTaskField(this.task.id,  {"cat" : cat_name});
+    }
   }
 
   // set due date

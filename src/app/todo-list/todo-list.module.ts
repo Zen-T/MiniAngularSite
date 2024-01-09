@@ -4,7 +4,7 @@ import { TodoListComponent } from './todo-list.component';
 import { TodoListRoutingModule } from './todo-list-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EditableModule } from '@ngneat/edit-in-place';
-import { CatsPickerComponent } from './elements/cats-picker/cats-picker.component';
+import { CatsPickerComponent, WarningDialog } from './elements/cats-picker/cats-picker.component';
 import { DatePickerHoriComponent } from './elements/date-picker-hori/date-picker-hori.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +21,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
+import { ClickedOutsideDirective } from '../directives/clicked-outside.directive';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -30,7 +32,9 @@ import { MatNativeDateModule } from '@angular/material/core';
     TasksTreeComponent,
     TaskItemComponent,
     TaskTreeItemComponent,
-    AddTaskComponent
+    AddTaskComponent,
+    ClickedOutsideDirective,
+    WarningDialog
   ],
   imports: [
     CommonModule,
@@ -39,7 +43,6 @@ import { MatNativeDateModule } from '@angular/material/core';
     TodoListRoutingModule,
     MatButtonModule,
     MatMenuModule,
-    MatButtonModule,
     MatIconModule,
     MatTreeModule,
     DragDropModule,
@@ -49,7 +52,8 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatDatepickerModule,
     MatInputModule,
     MatNativeDateModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatDialogModule,
   ]
 })
 export class TodoListModule { }

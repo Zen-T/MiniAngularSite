@@ -135,7 +135,7 @@ export class TodoListService {
   }
 
   // update task time
-  addSysDateTime(task: Task, timeName: string){
+  addSysDateTime(task_id: string, timeName: string, taskState?: boolean){
     // set field name
     const date_name = 'date_'+timeName
     const time_name = 'time_'+timeName
@@ -145,18 +145,57 @@ export class TodoListService {
     const yyyymmdd = sysDate.getFullYear() * 10000 + (sysDate.getMonth()+1)  * 100 + sysDate.getDate();
     const isoTime = sysDate.toISOString();
 
-    // update firebase doc
-    this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task.id, {[date_name] : yyyymmdd, [time_name] : isoTime});
+    if(taskState==undefined){
+      // update firebase doc
+      this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {[date_name] : yyyymmdd, [time_name] : isoTime});
+    }else{
+      if(taskState){
+        this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {[date_name] : yyyymmdd, [time_name] : isoTime, "done": taskState});
+      }
+      else{
+        this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {"done": taskState});
+      }
+    }
+
   }
 
   // add cat
   async addCat(cat_name: string){
+    // add new cat
     await this.dbService.addMapInDoc("Apps/todoApp/Categories/catsList", {[cat_name]: "img"});
   }
 
-  // remove cat
+  // remove cat and all Tasks under cat
+  async removeCatAndItsTasks(cat_name: string){
+    // remove tasks under this cat
+    const tasksArr: Task[] = await this.getTasksByConstraints([{key: "cat", opt: "==", val: cat_name}]);
+    tasksArr.forEach(task => {
+      this.delTask(task.id);
+    })
+
+    // remove cat
+    await this.dbService.deleteField("Apps/todoApp/Categories/catsList", cat_name);
+  }
 
   // update cat
+  async updateCatName(origin_cat_name: string, new_cat_name: string){
+    if(origin_cat_name!="" && new_cat_name!=="" && origin_cat_name!==new_cat_name){
+      // change tasks under origin cat 
+      const tasksArr: Task[] = await this.getTasksByConstraints([{key: "cat", opt: "==", val: origin_cat_name}]);
+      tasksArr.forEach(task => {
+        this.updateTaskField(task.id, {"cat" : new_cat_name});
+      })
+
+      // remove old cat
+      await this.dbService.deleteField("Apps/todoApp/Categories/catsList", origin_cat_name);
+
+      // add new cat to db
+      await this.dbService.addMapInDoc("Apps/todoApp/Categories/catsList", {[new_cat_name]: "img"});
+
+    }else{
+      console.log("Can not update cat name:", " Origin name:" + origin_cat_name, " New name:" + new_cat_name);
+    }
+  }
 
   // get cat
   async getCatsList(): Promise<any[]>{

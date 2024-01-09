@@ -39,17 +39,43 @@
   text-wrap: nowrap;
 }
 
-.task-info-widget{
-  display: flex;
-}
-.task-done {
+.task-done{
   text-decoration: line-through;
 }
 
-.due-date-picker{
+/* widgets container */
+.task-info-widget{
   display: flex;
   flex-direction: row;
+}
+
+/* widgets item */
+.task-info-widget > div{
+  height: 26px;
+  padding-right: 8px;
+}
+
+.due-date-picker button{
   max-width: 200px;
+  padding: 5px;
+  height: 26px;
+}
+
+.due-date-picker .button-label{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.due-date-picker .button-label p{
+  margin: 0px;
+  margin-top: 1px;
+}
+
+.due-date-picker img.calendar-icon{
+  padding-left: 3px;
+  padding-right: 7px;
+  height: 16px;
 }
 
 img.clear-date{
@@ -64,33 +90,29 @@ img.clear-date{
   display: initial;
 }
 
-.add-due-date-button{
-  padding: 5px;
-  height: 26px;
-}
-
-.show-due-date-button{
-  padding: 5px;
-  height: 26px;
+.due-away{
   background-color: #eeeeee !important;
 }
 
-.due-soon{
+.due-coming{
   background-color: #b1fc53c9 !important;
 }
 
-.due-urgent{
+.due-soon{
   background-color: #a9ffe4c2 !important;
 }
 
-.due-now{
+.due-urgent{
   background-color: #ff552ac7 !important;
+}
+
+.due-today{
+  background-color: #ff1b1bc7 !important;
 }
 
 .due-passed{
   background-color: #ba88fdfa !important;
 }
-
 
 .done-button{
   width: 70%;
@@ -100,15 +122,12 @@ img.clear-date{
 }
 
 .add-est-time-button{
-  padding: 5px;
-  height: 26px;
-  color: #00000096 !important;
+  color: #0000003d !important;
 }
 
-.show-est-time-button{
+.add-est-time-button, .show-est-time-button{
   padding: 5px;
   height: 26px;
-  background-color: #eeeeee !important;
 }
 
 /* task item right */
