@@ -1,32 +1,40 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-date-picker-hori',
   template: `
-    <div class="function testing">
-      <button id=1 (click)="selectDate(1)">1</button>
-      <button (click)="deselectDate()">deselectDate</button>
+    <link rel="stylesheet" href="date-picker-hori.component.css">
+    
+    <div class="date-input">
+      <div class="clear-date">
+        <img *ngIf="selected_date" class="clear-date-button" src="assets/icon/circle-xmark-regular.svg" (click)="clearPickedDate()">
+      </div>
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Choose a date</mat-label> 
+        <input matInput [matDatepicker]="picker" [value]='selected_date' (dateChange)="selectDate($event.value)">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
     </div>
+
   `,
   styles: [
   ]
 })
-export class DatePickerHoriComponent {
-  @Output() date_sele_map = new EventEmitter<object>();
-  
-  selectDate(id: number){
-    // form date selection constraint
-    const constraint = {key:"day", opt:"==", val: id};
-    
-    // output datte selection to parent component
-    this.date_sele_map.emit(constraint);
+export class DatePickerHoriComponent{
+  @Output() date_selection = new EventEmitter<Date | null>();
+  selected_date!: Date | null;
+
+  constructor(){}
+
+  selectDate(selected_date: Date | null){
+    this.selected_date = selected_date;
+    this.date_selection.emit(selected_date);
   }
 
-  deselectDate(){
-    // form date selection constraint
-    const constraint = {};
-
-    // output datte selection to parent component
-    this.date_sele_map.emit(constraint);
+  clearPickedDate(){
+    this.selected_date = null;
+    this.date_selection.emit(this.selected_date);
   }
 }

@@ -1,0 +1,58 @@
+.app-container{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-cat-container{
+    flex: 0 0 auto; /* 不拉伸，不收缩，保持原始大小 */
+    display: flex;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.cats-list{
+  flex: 1;
+  overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
+}
+
+.cat-item{
+    width: 100%
+}
+
+.cat-button{
+    max-width: 100%;
+    height: 28px;
+    width: 100%;
+    background-color: #3cb8e27a !important;
+    border-radius: 6px !important;
+    margin-top: 0px !important;
+    margin-bottom: 5px !important;
+}
+
+input.cat-name-edit-input{
+    max-width: 100%;
+    height: 28px;
+    width: 100%;
+    background-color: #ffffff !important;
+    border-radius: 6px !important;
+    margin-top: 0px !important;
+    margin-bottom: 5px !important;
+    margin-left: 8px;
+    padding-left: 10px;
+    border: 0px;
+}
+
+button.del-cat-icon, button.edit-cat-name-icon{
+    padding-left: 0px !important;
+    padding-right: 6px !important;
+    display: none;
+}
+
+.cat-button:hover button.del-cat-icon, .cat-button:hover button.edit-cat-name-icon{
+    display: initial;
+}
+
+.state-selector{
+    flex: 0 0 auto; /* 不拉伸，不收缩，保持原始大小 */
+}

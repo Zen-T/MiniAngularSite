@@ -1,0 +1,14 @@
+.add-task-container{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* add task */
+.add-task-info{
+  width: 39%;
+}
+
+.add-task-button{
+}

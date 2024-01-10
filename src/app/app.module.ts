@@ -22,6 +22,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TodoListModule } from './todo-list/todo-list.module';
 import { BenzComponent } from './Benz/benz.component';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,6 @@ import { BenzComponent } from './Benz/benz.component';
     PriceWatchComponent,
     Reconstruct3dComponent,
     MindMapComponent,
-    AppComponent,
     BotComponent,
     LoginComponent,
     BenzComponent,
@@ -47,6 +48,8 @@ import { BenzComponent } from './Benz/benz.component';
     BrowserAnimationsModule,
     MatProgressBarModule,
     TodoListModule,
+    MatButtonModule,
+    MatDialogModule
   ],
   providers: [
   ],

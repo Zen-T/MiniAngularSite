@@ -5,7 +5,7 @@ import { AuthFirebaseService } from '../core/service/auth-firebase.service';
 import { FirestoreService } from '../core/service/firestore.service';
 import { TodoListService } from '../core/service/todo-list.service';
 import { Task } from '../todo-list/model/task';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { Timestamp, collection, doc, onSnapshot } from 'firebase/firestore';
 
 @Component({
   selector: 'app-todo-list',
@@ -17,20 +17,21 @@ import { collection, doc, onSnapshot } from 'firebase/firestore';
 
     <!-- category picker (left side of the app) -->
     <div class="category-container">
-      <app-cats-picker (cat_sele_map)="selectCat($event)"></app-cats-picker>
+      <app-cats-picker (cat_selection)="selectCat($event)" (state_selection)="selectState($event)"></app-cats-picker>
     </div>
     
     <!-- tasks viewer and day picker (right side of the app) -->
     <div class="todoList-container">
-      <app-tasks-tree [tasks]="tasksArr"></app-tasks-tree>
-
       <!-- list of tasks -->
       <div class="tasks-container">
-        <app-tasks-viewer [tasksArr]="tasksArr"></app-tasks-viewer>
+        <!-- tasks tree -->
+        <app-add-task [newTaskCat]="this.cat_selection" [newTaskDateDue]="this.date_selection"></app-add-task>
+        <app-tasks-tree [tasksArr]="tasksArr"></app-tasks-tree>
+        <!-- <app-tasks-viewer [tasksArr]="tasksArr" [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-tasks-viewer> -->
       </div>
       <!-- date picker -->
       <div class="datePicker-container">
-        <app-date-picker-hori (date_sele_map)="selectDate($event)"></app-date-picker-hori>
+        <app-date-picker-hori class="app-date-picker-hori" (date_selection)="selectDate($event)"></app-date-picker-hori>
       </div>
     </div>
   </div>
@@ -46,8 +47,10 @@ export class TodoListComponent implements OnInit{
     private authService: AuthFirebaseService,
     private storeService: FirestoreService){}
 
-  cat_selection: object = {};
-  date_selection: object = {};
+  cat_selection: string = "";
+  date_selection!: Date | null;
+  state_selection!: boolean | null;
+
   tasksArr: Task[] = [];
 
   ngOnInit(){
@@ -72,24 +75,53 @@ export class TodoListComponent implements OnInit{
   // get tasks with constraints
   async get_tasks(){
     // get all tasks in selected category
-    this.tasksArr = await this.taskService.getDateTasks([this.cat_selection, this.date_selection]);
+    
+    // build cat Constraint Map for DB request
+    let catConstraintMap = {};
+    if(this.cat_selection != ""){
+      catConstraintMap = {key: "cat", opt: "==", val: this.cat_selection};
+    }
+
+    // build date Constraint Map for DB request
+    let dateConstraintMap = {};
+    if(this.date_selection != null){
+      let yyyymmdd: number = this.date_selection.getFullYear() * 10000 + (this.date_selection.getMonth()+1)  * 100 + this.date_selection.getDate();
+      dateConstraintMap =  {key:"date_due", opt:"==", val: yyyymmdd};
+    }
+
+    // build task state Constraint Map for DB request
+    let stateConstraintMap = {};
+    if(this.state_selection != null){
+      stateConstraintMap =  {key:"done", opt:"==", val: this.state_selection};
+    }
+
+    this.tasksArr = await this.taskService.getTasksByConstraints([catConstraintMap, dateConstraintMap, stateConstraintMap]);
   }
 
   // select cat
-  async selectCat(constraintMap: object){
+  async selectCat(cat_selection: string){
     // update cat selection
-    this.cat_selection = constraintMap;
+    this.cat_selection = cat_selection;
     
-    // get tasks
+    // update tasks array
     this.get_tasks();
   }
 
   // select date
-  async selectDate(constraintMap: object){
+  async selectDate(date_selection: Date | null){
     // update date selection
-    this.date_selection = constraintMap;
+    this.date_selection = date_selection;
     
-    // get tasks
+    // update tasks array
+    this.get_tasks();
+  }
+
+  // select state
+  async selectState(state_selection: boolean | null){
+    // update date selection
+    this.state_selection = state_selection;
+    
+    // update tasks array
     this.get_tasks();
   }
 }

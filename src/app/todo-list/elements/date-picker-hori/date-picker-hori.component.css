@@ -1,0 +1,20 @@
+.date-input{
+   
+}
+
+.clear-date{    
+    display: flex;
+    justify-content: flex-end;
+}
+
+img.clear-date-button{    
+    background-color: #ff6a6aa3;
+    height: 15px;
+    width: 16px;
+    border-radius: 100%;
+    display: none;
+  }
+  
+.date-input:hover img.clear-date-button{
+    display: initial;
+  }

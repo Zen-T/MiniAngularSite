@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthFirebaseService } from '../core/service/auth-firebase.service';
 import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
+import { FirestoreService } from '../core/service/firestore.service';
 
 @Component({
   selector: 'app-login',
@@ -37,10 +38,25 @@ import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
           <div class="help is-error" *ngIf="passwordInput.invalid && passwordInput.touched">name can not be empty</div>
         </div>
 
+        <!-- user name -->
+        <div class="field">
+          <label class="label">user name</label>
+          <input 
+            type="text" 
+            name="userName" 
+            class="input" 
+            [(ngModel)]="userName" 
+            #passwordInput="ngModel"
+            placeholder={{userName}}
+            >
+          <div class="help is-error" *ngIf="passwordInput.invalid && passwordInput.touched">name can not be empty</div>
+        </div>
+
         <!-- button -->
         <button (click)="signUp()" type="submit" class="button is-large is-warning" [disabled]="contactForm.invalid || userID">Sign up</button>
         <button (click)="logIn()" type="submit" class="button is-large is-warning" [disabled]="contactForm.invalid || userID">Log in</button>
         <button (click)="logOut()" type="submit" class="button is-large is-warning" [disabled]="!userID">Log out</button>
+        <button (click)="updateUserName()" type="submit" class="button is-large is-warning" [disabled]="!userID">update user name</button>
 
         {{ userID }}
       </form>
@@ -56,14 +72,17 @@ export class LoginComponent implements OnInit {
   email!: string;
   password!: string;
   userID!: string | null;
+  userName!: string;
 
-  constructor(private authService: AuthFirebaseService){};
+  constructor(private authService: AuthFirebaseService, private dbService: FirestoreService){};
 
   ngOnInit(){
     console.log("oninit login component")
-    onIdTokenChanged(this.authService.auth, (user) => {
+    onIdTokenChanged(this.authService.auth, async (user) => {
       if (user) {
         this.userID = user.uid;
+        const userInfo = await this.dbService.retrieveDocDate("");
+        this.userName = userInfo.userName;
       } else {
         this.userID = null;
       }
@@ -80,5 +99,9 @@ export class LoginComponent implements OnInit {
 
   async logOut(){
     await this.authService.userLogOut();
+  }
+
+  async updateUserName(){
+    await this.dbService.addMapInDoc("",{userName: this.userName});
   }
 }

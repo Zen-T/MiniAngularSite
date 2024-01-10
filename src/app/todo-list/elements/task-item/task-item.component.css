@@ -1,23 +1,24 @@
 .task-item{
   display: flex;
   flex-direction: row;
+  justify-content: flex-end;
   width: 100%;
-  border: solid 2px rgb(100, 166, 213);
 }
 
 /* task item left */
 .task-item-lef{
-  width: 13%;
+  width: 90px;
   display: flex;
   flex-direction: column;
-  padding-right: 1.5rem;
+  align-items: center;
 }
 
 .tag-img{
-  width: 239px !important;
+  width: 39px !important;
 }
 
-.est-time{
+.cat-name{
+  font-size: 1rem;
 }
 
 /* task item middle */
@@ -29,11 +30,88 @@
 }
 
 .task-name{
-  font-size: 1.9rem;
+  display: flex !important;
+  align-items: center;
+  width: 200px;
+  height: 43px !important;
+  font-size: 1.7rem;
+  overflow: hidden;
+  text-wrap: nowrap;
 }
 
-.task-done {
+.task-done{
   text-decoration: line-through;
+}
+
+/* widgets container */
+.task-info-widget{
+  display: flex;
+  flex-direction: row;
+}
+
+/* widgets item */
+.task-info-widget > div{
+  height: 26px;
+  padding-right: 8px;
+}
+
+.due-date-picker button{
+  max-width: 200px;
+  padding: 5px;
+  height: 26px;
+}
+
+.due-date-picker .button-label{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.due-date-picker .button-label p{
+  margin: 0px;
+  margin-top: 1px;
+}
+
+.due-date-picker img.calendar-icon{
+  padding-left: 3px;
+  padding-right: 7px;
+  height: 16px;
+}
+
+img.clear-date{
+  background-color: #ff6a6aa3;
+  height: 15px;
+  width: 16px;
+  border-radius: 100%;
+  display: none;
+}
+
+.due-date-picker:hover img.clear-date{
+  display: initial;
+}
+
+.due-away{
+  background-color: #eeeeee !important;
+}
+
+.due-coming{
+  background-color: #b1fc53c9 !important;
+}
+
+.due-soon{
+  background-color: #a9ffe4c2 !important;
+}
+
+.due-urgent{
+  background-color: #ff552ac7 !important;
+}
+
+.due-today{
+  background-color: #ff1b1bc7 !important;
+}
+
+.due-passed{
+  background-color: #ba88fdfa !important;
 }
 
 .done-button{
@@ -43,16 +121,28 @@
   border: none;
 }
 
-.cat-name{
-  font-size: 1rem;
+.add-est-time-button{
+  color: #0000003d !important;
+}
+
+.add-est-time-button, .show-est-time-button{
+  padding: 5px;
+  height: 26px;
 }
 
 /* task item right */
+/* hide by default, mouse hover to display */
 .task-item-rig{
-  width: 15%;
+  display: none;
+}
+
+.task-item:hover .task-item-rig{
+  width: 96px;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-
+.task-action-icon{
+  width: 30px;
+}

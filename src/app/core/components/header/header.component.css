@@ -1,0 +1,31 @@
+.top-navbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-item{
+  border-radius: 15px;
+}
+
+.select-highlight{
+  border-radius: 15px;
+  background-color: rgb(25, 151, 153) !important; /* 修改为你想要的高亮样式 */
+}
+
+.user-item{
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.user-item:hover{
+  background-color: rgb(13, 97, 98); /* 修改为你想要的高亮样式 */
+  border-radius: 5px;
+}
+
+
+.user-icon{
+  height: 52px;
+}
