@@ -29,6 +29,7 @@ import { Component } from '@angular/core';
           <a class="navbar-item" routerLink="mindmap">Mind Map</a>
           <a class="navbar-item" routerLink="todolist">To Do</a>
           <a class="navbar-item" routerLink="bot">聊天</a>
+          <a class="navbar-item" routerLink="display">开奔驰</a>
         </div>
       </div>
 

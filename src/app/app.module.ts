@@ -20,6 +20,7 @@ import { LoginComponent } from './login/login.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TodoListModule } from './todo-list/todo-list.module';
+import { BenzComponent } from './Benz/benz.component';
 
 
 @NgModule({
@@ -34,6 +35,7 @@ import { TodoListModule } from './todo-list/todo-list.module';
     AppComponent,
     BotComponent,
     LoginComponent,
+    BenzComponent,
   ],
   imports: [
     BrowserModule,

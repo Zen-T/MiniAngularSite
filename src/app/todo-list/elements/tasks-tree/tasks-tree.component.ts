@@ -40,12 +40,12 @@ const TREE_DATA: FoodNode[] = [
     <!-- show tree node -->
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="example-tree" cdkDropList  (cdkDropListDropped)="drop($event)">
       <!-- when node has not child -->
-      <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle id="{{node.task_info.id}}">
           <!-- show task item -->
           <app-task-item [task]="node.task_info" cdkDrag [cdkDragData]="node.task_info"></app-task-item>
       </mat-tree-node>
       <!-- when node has child -->
-      <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+      <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" id="{{node.task_info.id}}">
         <div class="mat-tree-node" cdkDrag [cdkDragData]="node.task_info">
           <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
             <mat-icon class="mat-icon-rtl-mirror">
@@ -116,6 +116,7 @@ export class TasksTreeComponent {
     this.buildTasksTree()
     this.dataSource.data = this.tasksTree;
     console.log(this.tasksTree);
+
   }
 
   // build tasksTree with recursive
@@ -162,7 +163,7 @@ export class TasksTreeComponent {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    console.log(event, event.previousIndex, event.currentIndex);
+    console.log(event, event.event.srcElement, event.currentIndex);
   }
 
   

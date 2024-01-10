@@ -8,6 +8,7 @@ import { MindMapComponent } from './mind-map/mind-map.component';
 import { Reconstruct3dComponent } from './reconstruct3d/reconstruct3d.component';
 import { BotComponent } from './bot/bot.component';
 import { LoginComponent } from './login/login.component';
+import { BenzComponent } from './Benz/benz.component';
 
 const routes: Routes = [
   {
@@ -52,6 +53,10 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent
+  },
+  {
+    path: "display",
+    component: BenzComponent
   },
 ];
 
