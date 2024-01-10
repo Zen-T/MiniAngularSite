@@ -39,6 +39,16 @@
   text-wrap: nowrap;
 }
 
+.text-overflow:hover {
+  animation: scrollText 6s ease-in-out infinite; /* 鼠标悬停时启用滚动动画，使用 ease-in-out 计时函数 */
+}
+
+@keyframes scrollText {
+  70% {transform: translateX(-100%); /* 滚动效果，以-X方向移动 */}
+  80% {transform: translateX(0%); /* 滚动效果，以-X方向移动 */}
+  100% {transform: translateX(0%); /* 滚动效果，以-X方向移动 */}
+}
+
 .task-done{
   text-decoration: line-through;
 }

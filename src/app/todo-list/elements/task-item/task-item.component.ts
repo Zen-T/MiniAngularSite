@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Task } from '../../model/task';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
 
@@ -6,7 +6,7 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
   selector: 'app-task-item',
   styleUrls: ["task-item.component.css"],
   template: `
-    <li class="task-item">
+    <li class="task-item" >
       <!-- left of the task item -->
       <div class="task-item-lef">
         <!-- tag img -->
@@ -28,7 +28,7 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
         <div class="task-name">
           <editable (click)="assign_origin_task_name()" (save)="update_task_name()">
             <ng-template viewMode>
-              <div [ngClass]="{'task-done':task.done}">{{ task.name }}</div>
+              <div class="rollable-task-name" [ngClass]="{'task-done':task.done}" #rollableTaskName>{{ task.name }}</div>
             </ng-template>
             <ng-template editMode>
               <input editableOnEnter editableOnEscape [(ngModel)]="updated_task_name" style="height: 35px; width: 100%; font-size: x-large;"/>
@@ -113,6 +113,8 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
 })
 export class TaskItemComponent implements OnInit{
   @Input() task!: Task;
+  @ViewChild('rollableTaskName') rollableTaskName!: ElementRef;
+
   catsList!: any[];
 
   updated_task_name!: string;
@@ -121,15 +123,36 @@ export class TaskItemComponent implements OnInit{
   due_reminder: string = "";
   due_color: string = "due-away";
 
-  constructor(private taskService: TodoListService){}
+  constructor(
+    private taskService: TodoListService,
+    ){}
+
 
   ngOnInit(){
     // set looks for due date picker buttom
-    this.setDueButtomReminderAndcolor()
+    this.setDueButtomReminderAndcolor();
+
     // assign updated_task_name
     this.updated_task_name = this.task.name;
+
     // assign updated_task_est
-    this.assign_origin_task_est()
+    this.assign_origin_task_est();
+  }
+
+  ngAfterViewInit() {
+    this.checkTextOverflow();
+  }
+
+  private checkTextOverflow() {
+    const rollableTaskName = this.rollableTaskName.nativeElement;
+    console.log(this.rollableTaskName)
+    const isOverflowing = rollableTaskName.scrollWidth > 200;
+
+    if (isOverflowing) {
+      rollableTaskName.classList.add('text-overflow');
+    } else {
+      rollableTaskName.classList.remove('text-overflow');
+    }
   }
 
   // set Due Buttom Reminder text And color
