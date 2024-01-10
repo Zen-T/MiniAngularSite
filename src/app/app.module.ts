@@ -20,6 +20,8 @@ import { LoginComponent } from './login/login.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TodoListModule } from './todo-list/todo-list.module';
+import { BenzComponent } from './Benz/benz.component';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 
@@ -34,6 +36,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MindMapComponent,
     BotComponent,
     LoginComponent,
+    BenzComponent,
   ],
   imports: [
     BrowserModule,

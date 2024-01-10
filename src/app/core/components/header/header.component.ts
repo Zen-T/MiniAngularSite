@@ -23,15 +23,16 @@ import { NavigationEnd, Router } from '@angular/router';
       <!-- navbar-menu the right side, hidden on touch devices, visible on desktop (>= 1024px) -->
       <div class="navbar-menu" id="navbarBasicExample">
         <div class="navbar-end">
-          <a class="navbar-item navUrl" routerLink="">Home</a>
-          <a class="navbar-item navUrl" routerLink="contact">Contact</a>
-          <a class="navbar-item navUrl" routerLink="users">Github User</a>
-          <a class="navbar-item navUrl" routerLink="cars">Cars</a>
-          <a class="navbar-item navUrl" routerLink="pricewatch">PriceWatch</a>
-          <a class="navbar-item navUrl" routerLink="reconstruct3d">3D reconstruction</a>
-          <a class="navbar-item navUrl" routerLink="mindmap">Mind Map</a>
-          <a class="navbar-item navUrl" routerLink="todolist">To Do</a>
-          <a class="navbar-item navUrl" routerLink="bot">聊天</a>
+          <a class="navbar-item" routerLink="">Home</a>
+          <a class="navbar-item" routerLink="contact">Contact</a>
+          <a class="navbar-item" routerLink="users">Github User</a>
+          <a class="navbar-item" routerLink="cars">Cars</a>
+          <a class="navbar-item" routerLink="pricewatch">PriceWatch</a>
+          <a class="navbar-item" routerLink="reconstruct3d">3D reconstruction</a>
+          <a class="navbar-item" routerLink="mindmap">Mind Map</a>
+          <a class="navbar-item" routerLink="todolist">To Do</a>
+          <a class="navbar-item" routerLink="bot">聊天</a>
+          <a class="navbar-item" routerLink="display">开奔驰</a>
         </div>
       </div>
 
