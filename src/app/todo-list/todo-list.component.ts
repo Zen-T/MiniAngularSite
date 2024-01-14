@@ -5,11 +5,12 @@ import { AuthFirebaseService } from '../core/service/auth-firebase.service';
 import { FirestoreService } from '../core/service/firestore.service';
 import { TodoListService } from '../core/service/todo-list.service';
 import { Task } from '../todo-list/model/task';
-import { Timestamp, collection, doc, onSnapshot } from 'firebase/firestore';
+import { QueryConstraint, collection, onSnapshot, query, where } from 'firebase/firestore';
 
 @Component({
   selector: 'app-todo-list',
   template: `
+
   <link rel="stylesheet" href="todo-list.component.css">
 
   <!-- app container -->
@@ -27,7 +28,6 @@ import { Timestamp, collection, doc, onSnapshot } from 'firebase/firestore';
         <!-- tasks tree -->
         <app-add-task [newTaskCat]="this.cat_selection" [newTaskDateDue]="this.date_selection"></app-add-task>
         <app-tasks-tree [tasksArr]="tasksArr"></app-tasks-tree>
-        <!-- <app-tasks-viewer [tasksArr]="tasksArr" [newTaskCat]="this.cat_selection" [newTaskdate]="this.date_selection"></app-tasks-viewer> -->
       </div>
       <!-- date picker -->
       <div class="datePicker-container">
@@ -42,86 +42,132 @@ import { Timestamp, collection, doc, onSnapshot } from 'firebase/firestore';
 })
 export class TodoListComponent implements OnInit{
 
-  constructor(
-    private taskService: TodoListService,
-    private authService: AuthFirebaseService,
-    private storeService: FirestoreService){}
-
-  cat_selection: string = "";
+  cat_selection!: string;
   date_selection!: Date | null;
   state_selection!: boolean | null;
 
-  tasksArr: Task[] = [];
+  uid!: string | null;
+  
+  unsubTasks: any;
+
+  tasksArr!: Task[];
+
+  constructor(
+    private taskService: TodoListService,
+    private authService: AuthFirebaseService,
+    private storeService: FirestoreService){
+  }
 
   ngOnInit(){
     // subscribe to login state
     onIdTokenChanged(this.authService.auth, (user) => {
       // user logged in
       if (user) {
-        // subscribe database tasks changes
-        onSnapshot(collection(this.storeService.db, "Users", user.uid, "/Apps/todoApp/Tasks"), (doc) => {
-          // reload tasks list
-          this.get_tasks();
-        });
+        // get uid
+        this.uid = user.uid;
+        // set up tasks listener
+        this.setTasksListener();
       }
       // no user logged in
       else {
+        // unsubsribe tasks
+        if(this.unsubTasks !== undefined){
+          this.unsubTasks();
+        }
         // empty local var
+        this.uid = null;
         this.tasksArr = [];
       }
     });
   }
 
+  ngOnDestroy(){
+    // unsubsribe tasks before component being destoried
+    if(this.unsubTasks !== undefined){
+      this.unsubTasks();
+    }
+  }
+
   // get tasks with constraints
-  async get_tasks(){
-    // get all tasks in selected category
+  setTasksListener(){
     
-    // build cat Constraint Map for DB request
-    let catConstraintMap = {};
-    if(this.cat_selection != ""){
-      catConstraintMap = {key: "cat", opt: "==", val: this.cat_selection};
-    }
+    // check if all constraint are initalized
+    if(this.uid !== null && this.cat_selection !== undefined && this.date_selection !== undefined && this.state_selection !== undefined){
 
-    // build date Constraint Map for DB request
-    let dateConstraintMap = {};
-    if(this.date_selection != null){
-      let yyyymmdd: number = this.date_selection.getFullYear() * 10000 + (this.date_selection.getMonth()+1)  * 100 + this.date_selection.getDate();
-      dateConstraintMap =  {key:"date_due", opt:"==", val: yyyymmdd};
-    }
+      // unsubsribe before init a new listener
+      if(this.unsubTasks !== undefined){
+        console.log(this.unsubTasks);
+        this.unsubTasks();
+      }
 
-    // build task state Constraint Map for DB request
-    let stateConstraintMap = {};
-    if(this.state_selection != null){
-      stateConstraintMap =  {key:"done", opt:"==", val: this.state_selection};
-    }
+      // init constrains array
+      const qConstraints: QueryConstraint[] = [];
 
-    this.tasksArr = await this.taskService.getTasksByConstraints([catConstraintMap, dateConstraintMap, stateConstraintMap]);
+      // add cat Constraint to constrains array
+      if(this.cat_selection !== ""){
+        qConstraints.push(where("cat", "==", this.cat_selection));
+      }
+
+      // add date Constraint to constrains array
+      if(this.date_selection !== null){
+        let yyyymmdd: number = this.date_selection.getFullYear() * 10000 + (this.date_selection.getMonth()+1)  * 100 + this.date_selection.getDate();
+        qConstraints.push(where("due_date", "==", yyyymmdd));
+      }
+
+      // add task state Constraint to constrains array
+      if(this.state_selection !== null){
+        qConstraints.push(where("done", "==", this.state_selection));
+      }
+
+      // set up query
+      const q = query(collection(this.storeService.db, "Users", this.uid, "/Apps/todoApp/Tasks"), ...qConstraints);
+      console.log("create firebase listener")
+      
+      // set up tasks upate listener
+      this.unsubTasks = onSnapshot(q, (querySnapshot) => {
+
+        // rest tasksArr
+        this.tasksArr = [];
+
+        // parse doc to task
+        querySnapshot.forEach(async (doc) => {
+          let task: Task = await this.taskService.buildTask(doc.data());
+          this.tasksArr.push(task);
+        });
+      });
+    }
   }
 
   // select cat
-  async selectCat(cat_selection: string){
+  selectCat(cat_selection: string){
     // update cat selection
     this.cat_selection = cat_selection;
     
+    console.log("cat")
+
     // update tasks array
-    this.get_tasks();
+    this.setTasksListener();
   }
 
   // select date
-  async selectDate(date_selection: Date | null){
+  selectDate(date_selection: Date | null){
     // update date selection
     this.date_selection = date_selection;
     
+    console.log("date")
+
     // update tasks array
-    this.get_tasks();
+    this.setTasksListener();
   }
 
   // select state
-  async selectState(state_selection: boolean | null){
-    // update date selection
+  selectState(state_selection: boolean | null){
+    // update state selection
     this.state_selection = state_selection;
     
+    console.log("state")
+
     // update tasks array
-    this.get_tasks();
+    this.setTasksListener();
   }
 }

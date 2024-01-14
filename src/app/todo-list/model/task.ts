@@ -25,10 +25,10 @@ export class Task {
 
     cat: string = "";
     sub_cat: string = "";
-    tag: string[] = [];
+    tag: string[] = []; // array act like map in firebase
 
     parent_task: string = "";
-    child_tasks: string[] = [];
+    child_tasks: string[] = []; // array act like map in firebase
     task_level: number = 0;
     show_child: boolean = true;
 

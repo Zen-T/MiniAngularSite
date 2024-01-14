@@ -7,7 +7,6 @@ import { FirestoreService } from 'src/app/core/service/firestore.service';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { MatChipSelectionChange } from '@angular/material/chips';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { Subscribable } from 'rxjs';
 
 export interface DialogData {
   title: string;
@@ -103,6 +102,8 @@ export class CatsPickerComponent implements OnInit{
   @Output() cat_selection =  new EventEmitter<string>();
   @Output() state_selection =  new EventEmitter<boolean | null>();
 
+  unsubCat: any;
+
   catsArr: any[] = [];
   new_cat_name: string = "";
   selected_cat: string = "";
@@ -119,15 +120,23 @@ export class CatsPickerComponent implements OnInit{
     public dialog: MatDialog
   ){}
 
-  async ngOnInit(){
+  ngOnInit(){
     // subscribe to login state
     onIdTokenChanged(this.authService.auth, async(user) => {
       // user logged in
       if (user) {
         // subscribe database catsList changes
-        onSnapshot(doc(this.storeService.db, "Users", user.uid, "/Apps/todoApp/Categories/catsList"), (doc) => {
-          // reload cat list
-          this.getCatsList();
+        this.unsubCat = onSnapshot(doc(this.storeService.db, "Users", user.uid, "/Apps/todoApp/Categories/catsList"), (doc) => {
+          // resr catsArr
+          this.catsArr = [];
+
+          // parse doc to cat
+          const doc_data = doc.data()
+          if (doc_data != null) {
+            Object.entries(doc_data).forEach((catInfo: any[]) => {
+              this.catsArr.push({ name: catInfo[0], img: catInfo[1] });
+            });
+          }
         });
       }
       // no user logged in
@@ -137,13 +146,25 @@ export class CatsPickerComponent implements OnInit{
       }
     }); 
 
-    // emit state selection
-    this.selectState(this.selected_state);
+    // emit cat selection when componment created 
+    this.cat_selection.emit(this.selected_cat);
 
+    // emit state selection when componment created 
+    this.selectState(this.selected_state); 
+  }
+
+  ngAfterViewInit(){
     // hard code to make cat item list width 100% (css not work for some reason)
     this.el.nativeElement.querySelectorAll(".mdc-evolution-chip-set__chips").forEach((element: ElementRef)=>{
       this.render.setStyle(element, "width", "100%")
     })
+  }
+
+  ngOnDestroy(){
+    // unsub cat listener
+    if(this.unsubCat){
+      this.unsubCat();
+    }
   }
 
   // add cat
@@ -151,7 +172,6 @@ export class CatsPickerComponent implements OnInit{
     if(this.new_cat_name != ""){
       this.taskService.addCat(this.new_cat_name);
       this.new_cat_name = "";
-      this.ngOnInit();
     }
   }
 
@@ -253,11 +273,6 @@ export class CatsPickerComponent implements OnInit{
         this.taskService.removeCatAndItsTasks(cat_name);
       }
     });
-  }
-
-  // get cats list
-  async getCatsList(){
-    this.catsArr = await this.taskService.getCatsList();
   }
 
   // output selected cat 

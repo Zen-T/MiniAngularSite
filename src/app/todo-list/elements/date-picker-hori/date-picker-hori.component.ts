@@ -22,11 +22,15 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
   styles: [
   ]
 })
-export class DatePickerHoriComponent{
+export class DatePickerHoriComponent implements OnInit{
   @Output() date_selection = new EventEmitter<Date | null>();
-  selected_date!: Date | null;
+  selected_date: Date | null = null;
 
-  constructor(){}
+  ngOnInit(){
+    this.selected_date = null;
+    this.date_selection.emit(this.selected_date);
+
+  }
 
   selectDate(selected_date: Date | null){
     this.selected_date = selected_date;

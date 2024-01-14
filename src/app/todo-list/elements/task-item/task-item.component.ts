@@ -113,7 +113,7 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
 })
 export class TaskItemComponent implements OnInit{
   @Input() task!: Task;
-  @ViewChild('rollableTaskName') rollableTaskName!: ElementRef;
+  @ViewChild('rollableTaskName', {static: false}) rollableTaskName!: ElementRef;
 
   catsList!: any[];
 
@@ -143,9 +143,8 @@ export class TaskItemComponent implements OnInit{
     this.checkTextOverflow();
   }
 
-  private checkTextOverflow() {
+  checkTextOverflow() {
     const rollableTaskName = this.rollableTaskName.nativeElement;
-    console.log(this.rollableTaskName)
     const isOverflowing = rollableTaskName.scrollWidth > 200;
 
     if (isOverflowing) {

@@ -27,8 +27,8 @@ export class TasksTreeComponent implements OnChanges{
   tasksDict: {[task_id: string]: Task} = {};
 
   ngOnChanges(changes: SimpleChanges){
-    if (changes['tasksArr']) {
-      console.log("new tree");
+    if (changes['tasksArr'] && this.tasksArr && this.tasksArr.length > 0) {
+      console.log("building new tree with input", this.tasksArr);
       this.buildTasksTree();
     }
   }
