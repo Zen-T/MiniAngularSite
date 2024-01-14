@@ -23,7 +23,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
   ]
 })
 export class DatePickerHoriComponent implements OnInit{
-  @Output() date_selection = new EventEmitter<Date | null>();
+  @Output() date_selection = new EventEmitter<Date | null>(true);
   selected_date: Date | null = null;
 
   ngOnInit(){

@@ -46,7 +46,7 @@ export class TodoListComponent implements OnInit{
   date_selection!: Date | null;
   state_selection!: boolean | null;
 
-  uid!: string | null;
+  uid!: string | undefined;
   
   unsubTasks: any;
 
@@ -75,7 +75,7 @@ export class TodoListComponent implements OnInit{
           this.unsubTasks();
         }
         // empty local var
-        this.uid = null;
+        this.uid = undefined;
         this.tasksArr = [];
       }
     });
@@ -92,8 +92,7 @@ export class TodoListComponent implements OnInit{
   setTasksListener(){
     
     // check if all constraint are initalized
-    if(this.uid !== null && this.cat_selection !== undefined && this.date_selection !== undefined && this.state_selection !== undefined){
-
+    if(this.uid !== undefined && this.cat_selection !== undefined && this.date_selection !== undefined && this.state_selection !== undefined){
       // unsubsribe before init a new listener
       if(this.unsubTasks !== undefined){
         console.log(this.unsubTasks);
@@ -118,7 +117,6 @@ export class TodoListComponent implements OnInit{
       if(this.state_selection !== null){
         qConstraints.push(where("done", "==", this.state_selection));
       }
-
       // set up query
       const q = query(collection(this.storeService.db, "Users", this.uid, "/Apps/todoApp/Tasks"), ...qConstraints);
       console.log("create firebase listener")
@@ -153,7 +151,7 @@ export class TodoListComponent implements OnInit{
   selectDate(date_selection: Date | null){
     // update date selection
     this.date_selection = date_selection;
-    
+    console.log(this.tasksArr)
     console.log("date")
 
     // update tasks array
