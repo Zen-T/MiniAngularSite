@@ -198,11 +198,11 @@ export class TodoListService {
   }
 
   // get cat
-  async getCatsList(): Promise<any[]>{
+  async getCatsNameFromCache(): Promise<any[]>{
     let cats: any[] = [];
 
     // retrieve doc
-    const docData = await this.dbService.retrieveDocDate("/Apps/todoApp/Categories/catsList");
+    const docData = await this.dbService.retrieveDocFromCache("/Apps/todoApp/Categories/catsList");
 
     if (docData != null) {
       // .push docData to cats array

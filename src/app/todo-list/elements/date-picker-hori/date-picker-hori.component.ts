@@ -27,9 +27,7 @@ export class DatePickerHoriComponent implements OnInit{
   selected_date: Date | null = null;
 
   ngOnInit(){
-    this.selected_date = null;
     this.date_selection.emit(this.selected_date);
-
   }
 
   selectDate(selected_date: Date | null){

@@ -77,7 +77,6 @@ export class LoginComponent implements OnInit {
   constructor(private authService: AuthFirebaseService, private dbService: FirestoreService){};
 
   ngOnInit(){
-    console.log("oninit login component")
     onIdTokenChanged(this.authService.auth, async (user) => {
       if (user) {
         this.userID = user.uid;

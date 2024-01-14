@@ -9,7 +9,7 @@ import { skip } from 'rxjs';
     <link rel="stylesheet" href="tasks-tree.component.css">
 
     <!-- tasks tree droplist group -->
-    <ul class="tasksTree" cdkDropListGroup>
+    <ul *ngIf="tasksTree" class="tasksTree" cdkDropListGroup>
       <!-- BSF show tree node -->
       <div *ngFor="let node of tasksTree">
         <!-- task tree item -->
@@ -27,8 +27,8 @@ export class TasksTreeComponent implements OnChanges{
   tasksDict: {[task_id: string]: Task} = {};
 
   ngOnChanges(changes: SimpleChanges){
-    if (changes['tasksArr'] && this.tasksArr && this.tasksArr.length > 0) {
-      console.log("building new tree with input", this.tasksArr);
+    if (changes['tasksArr'] && this.tasksArr) {
+      console.log("building new tree");
       this.buildTasksTree();
     }
   }

@@ -219,9 +219,6 @@ export class TaskItemComponent implements OnInit{
   // update task est
   async update_task_est(){
     // check if task est
-    console.log(this.updated_task_est)
-    console.log(this.task.time_est)
-
     if(this.updated_task_est >= 0 && this.updated_task_est != this.task.time_est){
       // update task est in db
       await this.taskService.updateTaskField(this.task.id,  {"time_est" : this.updated_task_est});
@@ -241,9 +238,9 @@ export class TaskItemComponent implements OnInit{
     await this.taskService.delTask(this.task.id)
   }
 
-  // get cats list
+  // get cats list from local cache
   async getCatsList(){
-    this.catsList = await this.taskService.getCatsList();
+    this.catsList = await this.taskService.getCatsNameFromCache();
   }
 
   // update task cat

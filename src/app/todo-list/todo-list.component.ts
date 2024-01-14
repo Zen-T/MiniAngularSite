@@ -26,8 +26,8 @@ import { QueryConstraint, collection, onSnapshot, query, where } from 'firebase/
       <!-- list of tasks -->
       <div class="tasks-container">
         <!-- tasks tree -->
-        <app-add-task [newTaskCat]="this.cat_selection" [newTaskDateDue]="this.date_selection"></app-add-task>
-        <app-tasks-tree [tasksArr]="tasksArr"></app-tasks-tree>
+        <app-add-task *ngIf="tasksArr" [newTaskCat]="this.cat_selection" [newTaskDateDue]="this.date_selection"></app-add-task>
+        <app-tasks-tree *ngIf="tasksArr" [tasksArr]="tasksArr"></app-tasks-tree>
       </div>
       <!-- date picker -->
       <div class="datePicker-container">
@@ -40,35 +40,37 @@ import { QueryConstraint, collection, onSnapshot, query, where } from 'firebase/
   styles: [
   ]
 })
-export class TodoListComponent implements OnInit{
+export class TodoListComponent{
 
+  // init as undefine, wait for children componment to set these vars
   cat_selection!: string;
   date_selection!: Date | null;
   state_selection!: boolean | null;
 
+  // init as undefine, wait for ngAfterViewInit to use AuthFirebaseService set uid
   uid!: string | null;
   
-  unsubTasks: any;
-
-  tasksArr!: Task[];
+  unsubTasks: any; // unsubscribe firebase tasks listener
+  tasksArr!: Task[]; // store all tasks from listener
 
   constructor(
     private taskService: TodoListService,
     private authService: AuthFirebaseService,
-    private storeService: FirestoreService){
+    private firestoreService: FirestoreService){
   }
 
-  ngOnInit(){
+  // after view init
+  ngAfterViewInit(){
     // subscribe to login state
     onIdTokenChanged(this.authService.auth, (user) => {
-      // user logged in
+      // if user logged in
       if (user) {
         // get uid
         this.uid = user.uid;
         // set up tasks listener
         this.setTasksListener();
       }
-      // no user logged in
+      // if no user logged in
       else {
         // unsubsribe tasks
         if(this.unsubTasks !== undefined){
@@ -81,6 +83,7 @@ export class TodoListComponent implements OnInit{
     });
   }
 
+  // after componment destory
   ngOnDestroy(){
     // unsubsribe tasks before component being destoried
     if(this.unsubTasks !== undefined){
@@ -90,13 +93,12 @@ export class TodoListComponent implements OnInit{
 
   // get tasks with constraints
   setTasksListener(){
-    
+   
     // check if all constraint are initalized
-    if(this.uid !== null && this.cat_selection !== undefined && this.date_selection !== undefined && this.state_selection !== undefined){
+    if(typeof this.uid === "string" && this.cat_selection !== undefined && this.date_selection !== undefined && this.state_selection !== undefined){
 
       // unsubsribe before init a new listener
       if(this.unsubTasks !== undefined){
-        console.log(this.unsubTasks);
         this.unsubTasks();
       }
 
@@ -111,7 +113,7 @@ export class TodoListComponent implements OnInit{
       // add date Constraint to constrains array
       if(this.date_selection !== null){
         let yyyymmdd: number = this.date_selection.getFullYear() * 10000 + (this.date_selection.getMonth()+1)  * 100 + this.date_selection.getDate();
-        qConstraints.push(where("due_date", "==", yyyymmdd));
+        qConstraints.push(where("date_due", "==", yyyymmdd));
       }
 
       // add task state Constraint to constrains array
@@ -120,20 +122,17 @@ export class TodoListComponent implements OnInit{
       }
 
       // set up query
-      const q = query(collection(this.storeService.db, "Users", this.uid, "/Apps/todoApp/Tasks"), ...qConstraints);
-      console.log("create firebase listener")
-      
+      const q = query(collection(this.firestoreService.db, "Users", this.uid, "/Apps/todoApp/Tasks"), ...qConstraints);
+
       // set up tasks upate listener
-      this.unsubTasks = onSnapshot(q, (querySnapshot) => {
-
-        // rest tasksArr
-        this.tasksArr = [];
-
+      this.unsubTasks = onSnapshot(q, (querySnapshot) => { //tbo (to be optimized: try catch needed?)
+        let tasks : Task[] = [];
         // parse doc to task
         querySnapshot.forEach(async (doc) => {
-          let task: Task = await this.taskService.buildTask(doc.data());
-          this.tasksArr.push(task);
+          let task: Task = await this.taskService.buildTask(doc.data()); //tbo (to be optimized: dont use await?)
+          tasks.push(task);
         });
+        this.tasksArr = tasks; //tbo (to be optimized: would you need this? if each time new task got pushed, the app-tasks-tree would update?)
       });
     }
   }
@@ -143,8 +142,6 @@ export class TodoListComponent implements OnInit{
     // update cat selection
     this.cat_selection = cat_selection;
     
-    console.log("cat")
-
     // update tasks array
     this.setTasksListener();
   }
@@ -153,8 +150,6 @@ export class TodoListComponent implements OnInit{
   selectDate(date_selection: Date | null){
     // update date selection
     this.date_selection = date_selection;
-    
-    console.log("date")
 
     // update tasks array
     this.setTasksListener();
@@ -165,8 +160,6 @@ export class TodoListComponent implements OnInit{
     // update state selection
     this.state_selection = state_selection;
     
-    console.log("state")
-
     // update tasks array
     this.setTasksListener();
   }

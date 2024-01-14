@@ -62,6 +62,7 @@ export class AddTaskComponent{
       // assign selected date as due date
       if(this.newTaskDateDue){
         this.newTask.date_due = this.newTaskDateDue.getFullYear() * 10000 + (this.newTaskDateDue.getMonth()+1)  * 100 + this.newTaskDateDue.getDate();
+        this.newTask.time_due = this.newTaskDateDue.toISOString();
       }
 
       // add to database
@@ -71,5 +72,4 @@ export class AddTaskComponent{
       })
     }
   }
-
 }

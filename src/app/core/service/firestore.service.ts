@@ -2,7 +2,7 @@
 
 import { Injectable, OnInit } from "@angular/core";
 import { AuthFirebaseService } from './auth-firebase.service';
-import { doc, collection, query, where, orderBy, QueryConstraint, deleteDoc, getFirestore, WhereFilterOp } from "firebase/firestore";
+import { doc, collection, query, where, orderBy, QueryConstraint, deleteDoc, getFirestore, WhereFilterOp, getDocFromCache } from "firebase/firestore";
 import { setDoc, addDoc, getDocs, getDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
 import { getAuth, onIdTokenChanged } from "firebase/auth";
 
@@ -172,6 +172,29 @@ export class FirestoreService{
       } else {
         console.log("No such doc: "+ docPath);
       };
+    } else{
+      console.log("Can not retrieve doc: No user logged in");
+    }
+
+    return doc_data;
+  }
+
+  // Retrieve doc data
+  async retrieveDocFromCache(docPath: string): Promise<any>{
+    let doc_data = null;
+
+    // if user exsit
+    if (this.userID != null){
+      // qurey
+      const docRef = doc(this.db, "Users", this.userID, docPath);
+
+      // Get a document, forcing the SDK to fetch from the offline cache.
+      try {
+        const doc = await getDocFromCache(docRef);
+        doc_data = doc.data()
+      } catch (e) {
+        console.log("Error getting cached document:", e);
+      }
     } else{
       console.log("Can not retrieve doc: No user logged in");
     }
