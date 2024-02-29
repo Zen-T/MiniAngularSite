@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Task } from 'src/app/todo-list/model/task';
 import { FirestoreService } from './firestore.service';
 import { query, orderBy, where, QueryConstraint } from "firebase/firestore";
+import { SelectionChange } from '@angular/cdk/collections';
 
 @Injectable({
   providedIn: 'root'
@@ -11,11 +12,21 @@ export class TodoListService {
   constructor(private dbService: FirestoreService ) { }
 
   // add task
-  async addTask(newTask: Task){
-    await this.dbService.addDocInColl("Apps/todoApp/Tasks", JSON.parse(JSON.stringify(newTask))).then(async(doc_Id)=>{
-      // set task id
-      await this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + doc_Id, {'id': doc_Id});
-    });
+  async addTask(newTask: Task): Promise <string>{
+    let task_Id: string = "";
+
+    try{
+        await this.dbService.addDocInColl("Apps/todoApp/Tasks", JSON.parse(JSON.stringify(newTask))).then(async(doc_Id)=>{
+        task_Id = doc_Id;
+        
+        // set task id
+        this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + doc_Id, {'id': doc_Id});
+      });
+    } catch(e){
+      console.error("Error adding task: ", e);
+    }
+
+    return task_Id;
   }
 
   // remove task
@@ -38,36 +49,37 @@ export class TodoListService {
     let task = new Task;
 
     task.setTask(
-      taskData.id, 
+      taskData.id,
 
-      taskData.name, 
-      taskData.detail, 
-
-      taskData.importance, 
-
-      taskData.date_created, 
-      taskData.date_due, 
-      taskData.date_started, 
-      taskData.date_done, 
-
-      taskData.time_created, 
-      taskData.time_due, 
-      taskData.time_started, 
-      taskData.time_done, 
-
-      taskData.time_est, 
-      taskData.time_used, 
-
-      taskData.cat, 
-      taskData.sub_cat, 
-      taskData.tag, 
-
-      taskData.parent_task, 
-      taskData.child_tasks, 
-      taskData.task_level, 
-      taskData.show_child, 
-
-      taskData.done);
+      taskData.name,
+      taskData.detail,
+      taskData.importance,
+      taskData.state,
+      
+      taskData.cat_id,
+      taskData.cat_name,
+      taskData.subcat_id,
+      taskData.subcat_name,
+      taskData.tags_id,
+      taskData.tags_name,
+  
+      taskData.parent_id,
+      taskData.childs_id,
+      taskData.show_childs,
+  
+      taskData.time_est,
+      taskData.time_used,
+  
+      taskData.date_created,
+      taskData.date_due,
+      taskData.date_started,
+      taskData.date_done,
+  
+      taskData.time_created,
+      taskData.time_due,
+      taskData.time_started,
+      taskData.time_done,
+    );
 
     return task;
   }
@@ -135,7 +147,7 @@ export class TodoListService {
   }
 
   // update task time
-  addSysDateTime(task_id: string, timeName: string, taskState?: boolean){
+  addSysDateTime(task_id: string, timeName: string, taskState?: "done" | "todo" | "ongoing"){
     // set field name
     const date_name = 'date_'+timeName
     const time_name = 'time_'+timeName
@@ -149,11 +161,11 @@ export class TodoListService {
       // update firebase doc
       this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {[date_name] : yyyymmdd, [time_name] : isoTime});
     }else{
-      if(taskState){
-        this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {[date_name] : yyyymmdd, [time_name] : isoTime, "done": taskState});
+      if(taskState === "done"){
+        this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {[date_name] : yyyymmdd, [time_name] : isoTime, "state": taskState});
       }
       else{
-        this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {"done": taskState});
+        this.dbService.addMapInDoc("Apps/todoApp/Tasks/" + task_id, {"state": taskState});
       }
     }
 
@@ -161,45 +173,57 @@ export class TodoListService {
 
   // add cat
   async addCat(cat_name: string){
-    // add new cat
-    await this.dbService.addMapInDoc("Apps/todoApp/Categories/catsList", {[cat_name]: "img"});
+    try{
+      // create new doc to store cat info
+      let doc_id = await this.dbService.addDocInColl("Apps/todoApp/Categories", JSON.parse(JSON.stringify({"name":cat_name})));
+      // update catslist
+      await this.dbService.addMapInDoc("Apps/todoApp/Categories/catsList", {[doc_id]: [cat_name]});
+    } catch(error){
+      console.log("adding cat error:", error);  
+    }
   }
 
   // remove cat and all Tasks under cat
-  async removeCatAndItsTasks(cat_name: string){
+  async removeCatAndItsTasks(cat_id: string){
     // remove tasks under this cat
-    const tasksArr: Task[] = await this.getTasksByConstraints([{key: "cat", opt: "==", val: cat_name}]);
+    const tasksArr: Task[] = await this.getTasksByConstraints([{key: "cat_id", opt: "==", val: cat_id}]);
     tasksArr.forEach(task => {
       this.delTask(task.id);
     })
 
     // remove cat
-    await this.dbService.deleteField("Apps/todoApp/Categories/catsList", cat_name);
+    await this.dbService.removeDoc("Apps/todoApp/Categories/" + cat_id);
+
+    // update catsList
+    await this.dbService.deleteField("Apps/todoApp/Categories/catsList", cat_id);
   }
 
-  // update cat
-  async updateCatName(origin_cat_name: string, new_cat_name: string){
-    if(origin_cat_name!="" && new_cat_name!=="" && origin_cat_name!==new_cat_name){
-      // change tasks under origin cat 
-      const tasksArr: Task[] = await this.getTasksByConstraints([{key: "cat", opt: "==", val: origin_cat_name}]);
-      tasksArr.forEach(task => {
-        this.updateTaskField(task.id, {"cat" : new_cat_name});
+    // remove cat and all Tasks under cat
+    async mergeCats(origin_cat_id: string, updated_cat_id: string){
+      // change all tasks under this cat
+      const tasksArr: Task[] = await this.getTasksByConstraints([{key: "cat_id", opt: "==", val: origin_cat_id}]);
+      tasksArr.forEach(async task => {
+        // update task's cat id 
+        await this.dbService.addMapInDoc("/Apps/todoApp/Tasks/"+task.id, {cat_id: updated_cat_id});
       })
 
-      // remove old cat
-      await this.dbService.deleteField("Apps/todoApp/Categories/catsList", origin_cat_name);
+      // remove original cat
+    await this.dbService.removeDoc("Apps/todoApp/Categories/" + origin_cat_id);
 
-      // add new cat to db
-      await this.dbService.addMapInDoc("Apps/todoApp/Categories/catsList", {[new_cat_name]: "img"});
-
-    }else{
-      console.log("Can not update cat name:", " Origin name:" + origin_cat_name, " New name:" + new_cat_name);
+    // update catsList
+    await this.dbService.deleteField("Apps/todoApp/Categories/catsList", origin_cat_id);
     }
+
+  // update cat
+  async updateCatName(cat_id: string, new_cat_name: string){
+    // change cat_name
+    await this.dbService.addMapInDoc("Apps/todoApp/Categories/"+cat_id, {name: new_cat_name});
+    await this.dbService.addMapInDoc("Apps/todoApp/Categories/catsList", {[cat_id]: new_cat_name});
   }
 
   // get cat
-  async getCatsNameFromCache(): Promise<any[]>{
-    let cats: any[] = [];
+  async getCatsListFromCache(): Promise<any[]>{
+    let catsList: any[] = [];
 
     // retrieve doc
     const docData = await this.dbService.retrieveDocFromCache("/Apps/todoApp/Categories/catsList");
@@ -207,11 +231,11 @@ export class TodoListService {
     if (docData != null) {
       // .push docData to cats array
       Object.entries(docData).forEach((catInfo: any[]) => {
-        cats.push({ name: catInfo[0], img: catInfo[1] });
+        catsList.push({ id: catInfo[0], name: catInfo[1] });
       });
     }
 
-    return cats;
+    return catsList;
   }
 
 }

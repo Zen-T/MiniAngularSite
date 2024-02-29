@@ -1,10 +1,6 @@
-import { Component, OnInit, Output, EventEmitter, Renderer2, ElementRef, Inject } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Renderer2, ElementRef, Inject, Input, AfterViewInit } from '@angular/core';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
 
-import { AuthFirebaseService } from 'src/app/core/service/auth-firebase.service';
-import { onIdTokenChanged } from 'firebase/auth';
-import { FirestoreService } from 'src/app/core/service/firestore.service';
-import { doc, onSnapshot } from 'firebase/firestore';
 import { MatChipSelectionChange } from '@angular/material/chips';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
@@ -52,30 +48,30 @@ export interface DialogData {
 
       <!-- cats selector -->
       <mat-chip-listbox class="cats-list mat-mdc-chip-set-stacked">
-        <div *ngFor="let cat of catsArr" class="cat-item">
-          <mat-chip-option [selected]="selected_cat===cat.name" *ngIf="editing_cat_name !== cat.name" class="cat-button" id="cat-button-{{cat.name}}" (selectionChange)="selectCat($event)">
-            <span class="cat-name">{{cat.name}}</span>
+        <div *ngFor="let cat_id of Object.keys(catsDict)" class="cat-item">
+          <mat-chip-option [selected]="selected_cat === cat_id" *ngIf="editing_cat !== cat_id" id="{{cat_id}}" class="cat-button" (selectionChange)="selectCat($event)">
+            <span class="cat-name">{{catsDict[cat_id]}}</span>
             <!-- edit cat name icon -->
-            <button *ngIf="editing_cat_name === ''" class="edit-cat-name-icon" (click)="startEditCatName(cat.name)" matChipRemove>
+            <button *ngIf="editing_cat === ''" class="edit-cat-name-icon" (click)="startEditCatName(cat_id)" matChipRemove>
               <img src="assets/icon/pen-to-square-regular.svg">
             </button>
             <!-- del cat icon -->
-            <button *ngIf="editing_cat_name === ''" class="del-cat-icon" (click)="removeCat(cat.name)" matChipTrailingIcon>
+            <button *ngIf="editing_cat === ''" class="del-cat-icon" (click)="removeCat(cat_id)" matChipTrailingIcon>
               <img src="assets/icon/trash-can-regular.svg">
             </button>
           </mat-chip-option>
           <!-- edit cat name input box -->
           <input
-            *ngIf="editing_cat_name === cat.name"
+            *ngIf="editing_cat === cat_id"
             class="cat-name-edit-input"
-            id="cat-name-edit-input-{{cat.name}}"
+            id="cat-name-edit-input-{{cat_id}}"
             type="text"
-            value="{{cat.name}}"
+            value="{{catsDict[cat_id]}}"
             [(ngModel)]="updated_cat_name"
-            (keyup.enter)="updateCatName(cat.name, updated_cat_name)"
+            (keyup.enter)="updateCatName(cat_id, updated_cat_name)"
             appClickedOutside
-            (clickedOutside)="updateCatName(cat.name, updated_cat_name)"
-            (keyup.escape)="cancelEditCatName(cat.name)"
+            (clickedOutside)="updateCatName(cat_id, updated_cat_name)"
+            (keyup.escape)="cancelEditCatName()"
           />
         </div>
       </mat-chip-listbox>
@@ -85,9 +81,10 @@ export interface DialogData {
         <mat-form-field subscriptSizing="dynamic" style="width: 100%;">
           <mat-label>show tasks</mat-label>
           <mat-select [(value)]="selected_state" (selectionChange)="selectState(selected_state)">
-            <mat-option value="">All</mat-option>
-            <mat-option [value]="false">To Do</mat-option>
-            <mat-option [value]="true">Done</mat-option>
+            <mat-option value="all">All</mat-option>
+            <mat-option value="ongoing">On Going</mat-option>
+            <mat-option value="todo">To Do</mat-option>
+            <mat-option value="done">Done</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -98,53 +95,32 @@ export interface DialogData {
   styles: [
   ]
 })
-export class CatsPickerComponent implements OnInit{
+export class CatsPickerComponent implements OnInit, AfterViewInit{
   @Output() cat_selection =  new EventEmitter<string>();
-  @Output() state_selection =  new EventEmitter<boolean | null>();
+  @Output() state_selection =  new EventEmitter<"todo" | "ongoing" | "done" | "all">();
+  @Input() catsDict!: { [key: string]: string };
 
-  unsubCat: any;
-
-  catsArr: any[] = [];
   new_cat_name: string = "";
   selected_cat: string = "";
-  selected_state: boolean | string = false;
+  selected_state: "todo" | "ongoing" | "done" | "all" = "todo";
   updated_cat_name: string = "";
-  editing_cat_name: string = "";
+  editing_cat: string = "";
+  Object = Object;
 
   constructor(
     private taskService: TodoListService,
-    private authService: AuthFirebaseService,
-    private storeService: FirestoreService,
     private render: Renderer2,
     private el: ElementRef,
     public dialog: MatDialog
   ){}
 
   ngOnInit(){
-    // subscribe to login state
-    onIdTokenChanged(this.authService.auth, async(user) => {
-      // user logged in
-      if (user) {
-        // subscribe database catsList changes
-        this.unsubCat = onSnapshot(doc(this.storeService.db, "Users", user.uid, "/Apps/todoApp/Categories/catsList"), (doc) => {
-          // resr catsArr
-          this.catsArr = [];
-
-          // parse doc to cat
-          const doc_data = doc.data()
-          if (doc_data != null) {
-            Object.entries(doc_data).forEach((catInfo: any[]) => {
-              this.catsArr.push({ name: catInfo[0], img: catInfo[1] });
-            });
-          }
-        });
-      }
-      // no user logged in
-      else {
-        // empty local var
-        this.catsArr = [];
-      }
-    }); 
+    // set selected_cat as first cat to redece loading all tasks
+    const cats_id = Object.keys(this.catsDict);
+    if (cats_id.length > 0) {
+      const firstCatId = cats_id[0];
+      this.selected_cat = firstCatId;
+    } 
 
     // emit cat selection when componment created 
     this.cat_selection.emit(this.selected_cat);
@@ -160,42 +136,64 @@ export class CatsPickerComponent implements OnInit{
     })
   }
 
-  ngOnDestroy(){
-    // unsub cat listener
-    if(this.unsubCat){
-      this.unsubCat();
-    }
-  }
-
   // add cat
   async addCat(){
     if(this.new_cat_name != ""){
-      this.taskService.addCat(this.new_cat_name);
-      this.new_cat_name = "";
+  
+      let nameExsits:boolean = false;
+
+      // check if new cat name already exits
+      Object.keys(this.catsDict).forEach(cat_id => {
+        const cat_name = this.catsDict[cat_id];
+        if(cat_name == this.new_cat_name){
+          nameExsits = true;
+        }
+      });
+
+      // add new cat
+      if(!nameExsits){
+        this.taskService.addCat(this.new_cat_name);
+        this.new_cat_name = "";
+      }
+
+      // pop up to inform user
+      if(nameExsits){
+        console.log("cat name already exsit")
+        let diaLogData: DialogData = {
+          title: 'Category "'+ this.new_cat_name +'" already exists',
+          sub_title:'',
+          content: 'Please try another cat name',
+          buttons: [],
+          key: ''
+        };
+        const dialogRef = this.dialog.open(WarningDialog,{data: diaLogData});
+      }
     }
-  }
+  } 
 
   // start edit Cat Name
-  startEditCatName(cat_name: string){
+  startEditCatName(cat_id: string){
     // show input box & hide cat chip
-    this.editing_cat_name = cat_name;
+    this.editing_cat = cat_id;
 
     // assign var for new name
-    this.updated_cat_name = cat_name;
+    this.updated_cat_name = this.catsDict[cat_id];
   }
 
   // end edit Cat Name
-  cancelEditCatName(cat_name: string){
+  cancelEditCatName(){
     // show input box & hide cat chip
-    this.editing_cat_name = "";
+    this.editing_cat = "";
 
     // assign var for new name
     this.updated_cat_name = "";
   }
 
   // update cat name
-  updateCatName(origin_cat_name: string, updated_cat_name: string){
-    let nameExsits:boolean = false;
+  updateCatName(cat_id: string, updated_cat_name: string){
+    let nameExsits:boolean | string = false;
+
+    const origin_cat_name = this.catsDict[cat_id]
 
     // check if new name is blank
     if(updated_cat_name != ""){
@@ -204,16 +202,14 @@ export class CatsPickerComponent implements OnInit{
       if(updated_cat_name != origin_cat_name){
 
         // check if new cat name already exits
-        try {
-          this.catsArr.forEach(cat =>{
-            if(cat.name == updated_cat_name){
-              nameExsits = true;
-              throw nameExsits;
-            }
-          })}catch (e) {console.log(e)}
+        Object.keys(this.catsDict).forEach(cat_id =>{
+          if(this.catsDict[cat_id] == updated_cat_name){
+            nameExsits = cat_id;
+           }
+        })
 
-        if(nameExsits){
-          console.log("name already exsit", origin_cat_name, updated_cat_name)
+        if(nameExsits !== false){
+          console.log("name already exsit", updated_cat_name)
           // pop up to ask if merge tasks under this cat
           // set up pop up info
           let diaLogData: DialogData = {
@@ -223,25 +219,22 @@ export class CatsPickerComponent implements OnInit{
             buttons: [{name:"Merge all tasks", color:"red"}],
             key: ''
           };
-          // pop up to comfirm if del all tasks under this cat
+          // pop up to comfirm if Merge all tasks
           const dialogRef = this.dialog.open(WarningDialog,{data: diaLogData});
           dialogRef.afterClosed().subscribe(result => {
-            if(result == "Merge all tasks"){
-              console.log("mergering", origin_cat_name, updated_cat_name)
+            if(result == "Merge all tasks" && typeof(nameExsits) == "string"){
               // add new name to database and change all tasks under origin cat
-              console.log("all task", origin_cat_name, updated_cat_name)
-              this.taskService.updateCatName(origin_cat_name, updated_cat_name);
-              console.log(origin_cat_name, updated_cat_name)
+              console.log("mergering tasks from ", origin_cat_name, " => ", updated_cat_name)
+              this.taskService.mergeCats(cat_id, nameExsits);
 
               // update selected cat to update tasks viewer
-              console.log("done", origin_cat_name, updated_cat_name)
-              this.selected_cat = updated_cat_name;
+              this.selected_cat = nameExsits;
               this.cat_selection.emit(this.selected_cat);
             }
           });
         }else{
           // add new name to database and change all tasks under origin cat
-          this.taskService.updateCatName(origin_cat_name, updated_cat_name);
+          this.taskService.updateCatName(cat_id, updated_cat_name);
 
           // update selected cat to update tasks viewer
           this.selected_cat = updated_cat_name;
@@ -252,11 +245,14 @@ export class CatsPickerComponent implements OnInit{
 
     // reset var
     this.updated_cat_name = "";
-    this.editing_cat_name = "";
+    this.editing_cat = "";
   }
 
   // remove cat
-  removeCat(cat_name: string){
+  removeCat(cat_id: string){
+    // get cat name with id
+    const cat_name = this.catsDict[cat_id];
+
     // set up pop up info
     let diaLogData: DialogData = {
       title: 'Delete this category?',
@@ -270,17 +266,19 @@ export class CatsPickerComponent implements OnInit{
     dialogRef.afterClosed().subscribe(result => {
       if(result == cat_name){
         // comfirmed to remove cat
-        this.taskService.removeCatAndItsTasks(cat_name);
+        this.taskService.removeCatAndItsTasks(cat_id);
       }
     });
   }
 
   // output selected cat 
   selectCat(catChange: MatChipSelectionChange){
+
+    console.log(catChange)
     // selected chip
     if(catChange.selected){
-      const cat_name = catChange.source.value;
-      this.selected_cat = cat_name;
+      const cat_id = catChange.source.id;
+      this.selected_cat = cat_id;
     }
     // unselected chip
     else{
@@ -292,13 +290,9 @@ export class CatsPickerComponent implements OnInit{
 }
 
   // output selected state
-  selectState(selected_state: boolean | string){
-    if(typeof selected_state == "boolean"){
-      this.state_selection.emit(selected_state);
-    }
-    else{
-      this.state_selection.emit(null);
-    }
+  selectState(selected_state: "todo" | "ongoing" | "done" | "all"){
+    this.state_selection.emit(selected_state);
+    console.log(selected_state);
   }
 
   // open dialog 
@@ -307,10 +301,6 @@ export class CatsPickerComponent implements OnInit{
     dialogRef.afterClosed().subscribe(result => {console.log('The dialog was closed', result);});
   }
 }
-
-
-
-
 
 
 // warning-dialog Component

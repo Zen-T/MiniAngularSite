@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { initializeApp } from 'firebase/app';
+import { FirebaseError, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth'
 import * as firebaseAuth from 'firebase/auth';
 
@@ -22,36 +22,18 @@ export class AuthFirebaseService {
   auth = getAuth(this.app);
   
   // user sign up
-  async userSignUp(email:string, password:string){
-    await firebaseAuth.createUserWithEmailAndPassword(this.auth, email, password).then(cred => {
-      console.log("user sign up: ");
-      console.log(cred);
-    });
+  async userSignUp(email:string, password:string): Promise<firebaseAuth.UserCredential>{
+    return await firebaseAuth.createUserWithEmailAndPassword(this.auth, email, password)
   }
 
   // user log in
-  async userLogIn(email:string, password:string){
-    await firebaseAuth.signInWithEmailAndPassword(this.auth, email, password).then(cred => {
-      console.log("user log in: ");
-      console.log(cred);
-    });
+  async userLogIn(email:string, password:string): Promise <firebaseAuth.UserCredential>{
+    return await firebaseAuth.signInWithEmailAndPassword(this.auth, email, password);
   }
 
   // user log out
-  async userLogOut(){
-    await firebaseAuth.signOut(this.auth).then(()=>{
-      console.log("user log out")
-    });
+  async userLogOut(): Promise<void>{
+    return await firebaseAuth.signOut(this.auth);
   }
 
-  // verify user id
-  async getUserID(): Promise<string|null>{
-    const user = await getAuth().currentUser;
-
-    if (user) {
-      return user.uid;
-    } else {
-      return null;
-    }
-  }
 }

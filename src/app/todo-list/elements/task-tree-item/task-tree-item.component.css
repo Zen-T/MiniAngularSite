@@ -80,3 +80,13 @@
   border-radius: 6px;
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
+
+.add-subtask-container{
+  display: flex;
+}
+
+.task-parents-placeholder{
+  width: 65px;
+  flex: 0 0 auto; /* avoid width and height being affected by flex */
+  text-align: center;
+}

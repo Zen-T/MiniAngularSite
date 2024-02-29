@@ -156,3 +156,7 @@ img.clear-date{
 .task-action-icon{
   width: 30px;
 }
+
+.task-action-icon img:hover{
+  width: 19px;
+}

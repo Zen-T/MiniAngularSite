@@ -23,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ClickedOutsideDirective } from '../directives/clicked-outside.directive';
 import { MatDialogModule } from '@angular/material/dialog';
+import { AddSubtaskComponent } from './elements/add-subtask/add-subtask.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     TaskTreeItemComponent,
     AddTaskComponent,
     ClickedOutsideDirective,
-    WarningDialog
+    WarningDialog,
+    AddSubtaskComponent
   ],
   imports: [
     CommonModule,

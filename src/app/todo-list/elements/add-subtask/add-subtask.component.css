@@ -1,0 +1,9 @@
+.add-subtask-container{
+  width: 100%;
+  display: flex;
+}
+
+/* add task */
+.add-subtask-info{
+  width: 100%;
+}

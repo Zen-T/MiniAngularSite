@@ -57,7 +57,7 @@ export class AddTaskComponent{
       this.newTask.time_created = sysTime.toISOString();
 
       // assign selected cat
-      this.newTask.cat = this.newTaskCat;
+      this.newTask.cat_id = this.newTaskCat;
 
       // assign selected date as due date
       if(this.newTaskDateDue){

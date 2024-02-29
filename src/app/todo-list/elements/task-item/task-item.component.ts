@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Task } from '../../model/task';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
 
@@ -15,10 +15,10 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
         </div>
         <!-- cat selection -->
         <div class="cat-select">
-          <button mat-button [matMenuTriggerFor]="cats" (click)="getCatsList()">{{ task.cat }}</button>
+          <button mat-button [matMenuTriggerFor]="cats" (click)="getCatsList()">{{ task.cat_name }}</button>
           <mat-menu #cats="matMenu">
-            <button mat-menu-item (click)="update_task_cat('')"></button>
-            <button *ngFor="let cat of catsList" mat-menu-item (click)="update_task_cat(cat.name)">{{cat.name}}</button>
+            <button mat-menu-item (click)="update_task_cat('')"></button><!-- assign no cat -->
+            <button *ngFor="let cat of catsList" mat-menu-item (click)="update_task_cat(cat.id)">{{cat.name}}</button>
           </mat-menu>
         </div>
       </div>
@@ -26,9 +26,9 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
       <div class="task-item-mid">
         <!-- editable task name -->
         <div class="task-name">
-          <editable (click)="assign_origin_task_name()" (save)="update_task_name()">
+          <editable (click)="assign_origin_task_name()" (save)="update_task_name()"  (cancel)="sup()">
             <ng-template viewMode>
-              <div class="rollable-task-name" [ngClass]="{'task-done':task.done}" #rollableTaskName>{{ task.name }}</div>
+              <div class="rollable-task-name" [ngClass]="{'task-done':task.state === 'done'}" #rollableTaskName>{{ task.name }}</div>
             </ng-template>
             <ng-template editMode>
               <input editableOnEnter editableOnEscape [(ngModel)]="updated_task_name" style="height: 35px; width: 100%; font-size: x-large;"/>
@@ -103,6 +103,10 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
         <div class="task-action-icon">
           <img src="assets/icon/pen-to-square-regular.svg">
         </div>
+        <!-- add subtask -->
+        <div class="task-action-icon">
+          <img src="assets/icon/square-plus-regular.svg" (click)="add_subtask()">
+        </div>
         <!-- delete task -->
         <div class="task-action-icon">
           <img src="assets/icon/trash-can-regular.svg" (click)="del_task()">
@@ -113,6 +117,7 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
 })
 export class TaskItemComponent implements OnInit{
   @Input() task!: Task;
+  @Output() show_add_subtask = new EventEmitter<boolean>();
   @ViewChild('rollableTaskName', {static: false}) rollableTaskName!: ElementRef;
 
   catsList!: any[];
@@ -122,6 +127,8 @@ export class TaskItemComponent implements OnInit{
 
   due_reminder: string = "";
   due_color: string = "due-away";
+
+  rollableTaskNameEle!: ElementRef;
 
   constructor(
     private taskService: TodoListService,
@@ -141,6 +148,10 @@ export class TaskItemComponent implements OnInit{
 
   ngAfterViewInit() {
     this.checkTextOverflow();
+  }
+
+  sup() {
+    console.log("sup")
   }
 
   checkTextOverflow() {
@@ -230,7 +241,13 @@ export class TaskItemComponent implements OnInit{
 
   // toggle task state
   async toggle_task_state(){
-    this.taskService.addSysDateTime(this.task.id, "done", !this.task.done)
+    if(this.task.state === "todo") this.taskService.addSysDateTime(this.task.id, "done", "done")
+    if(this.task.state === "done") this.taskService.addSysDateTime(this.task.id, "done", "todo")
+  }
+
+  // add sub task
+  add_subtask(){
+    this.show_add_subtask.emit(true);
   }
 
   // del task
@@ -240,14 +257,14 @@ export class TaskItemComponent implements OnInit{
 
   // get cats list from local cache
   async getCatsList(){
-    this.catsList = await this.taskService.getCatsNameFromCache();
+    this.catsList = await this.taskService.getCatsListFromCache();
   }
 
   // update task cat
-  async update_task_cat(cat_name: string){
+  async update_task_cat(cat_id: string){
     // check if cat changed
-    if(cat_name != this.task.cat){
-      await this.taskService.updateTaskField(this.task.id,  {"cat" : cat_name});
+    if(cat_id != this.task.cat_id){
+      await this.taskService.updateTaskField(this.task.id,  {"cat_id" : cat_id});
     }
   }
 

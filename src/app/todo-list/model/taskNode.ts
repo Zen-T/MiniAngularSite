@@ -11,6 +11,5 @@ export class TaskNode {
         this.task_children = task_children;
         this.task_parents_id = task_parents_id;
         this.task_parents_name = task_parents_name;
-
     }
 }

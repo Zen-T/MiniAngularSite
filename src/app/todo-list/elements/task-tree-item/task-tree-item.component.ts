@@ -1,8 +1,10 @@
-import { Component, ElementRef, Input, OnInit, Renderer2, RendererStyleFlags2 } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, Renderer2, RendererStyleFlags2, ViewChild, ViewContainerRef, ComponentFactoryResolver, ComponentRef } from '@angular/core';
 import { TaskNode } from '../../model/taskNode';
 import { CdkDrag, CdkDragDrop, CdkDragEnter, CdkDragExit, CdkDragMove, CdkDragRelease, CdkDragSortEvent, CdkDragStart} from '@angular/cdk/drag-drop';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
 import { Task } from '../../model/task';
+import { AddSubtaskComponent } from '../add-subtask/add-subtask.component';
+import { and } from 'firebase/firestore';
 
 @Component({
   selector: 'app-task-tree-item',
@@ -24,20 +26,25 @@ import { Task } from '../../model/task';
           <div class="cdk-drag-placeholder" *cdkDragPlaceholder></div>
           <!-- button hide task children -->
           <div cdkDragHandle class="collapse-button">
-            <img [ngClass]="{'done-task': taskNode.task_info.done}" src="assets/icon/circle-regular.svg" *ngIf="!taskNode.task_children.length"> <!-- no children -->
-            <img [ngClass]="{'done-task': taskNode.task_info.done}" src="assets/icon/circle-right-regular.svg" *ngIf="taskNode.task_children.length && !showChildren" (click)="collapse()"> <!-- children hide -->
-            <img [ngClass]="{'done-task': taskNode.task_info.done}" src="assets/icon/circle-down-regular.svg" *ngIf="taskNode.task_children.length && showChildren" (click)="collapse()"> <!-- children show -->
+            <img [ngClass]="{'done-task': taskNode.task_info.state === 'done'}" src="assets/icon/circle-regular.svg" *ngIf="!taskNode.task_children.length"> <!-- no children -->
+            <img [ngClass]="{'done-task': taskNode.task_info.state === 'done'}" src="assets/icon/circle-right-regular.svg" *ngIf="taskNode.task_children.length && !showChildren" (click)="collapse()"> <!-- children hide -->
+            <img [ngClass]="{'done-task': taskNode.task_info.state === 'done'}" src="assets/icon/circle-down-regular.svg" *ngIf="taskNode.task_children.length && showChildren" (click)="collapse()"> <!-- children show -->
           </div>
           <!-- task item -->
-          <app-task-item class="task-item" [task]="taskNode.task_info"></app-task-item>
+          <app-task-item class="task-item" [task]="taskNode.task_info" (show_add_subtask)="insertAddSubtaskComponent(taskNode.task_info)"></app-task-item>
         </div>
+      </div>
+      <!-- show add sub task input box here-->
+      <div class="add-subtask-container">
+        <div class="task-parents-placeholder" *ngFor="let parent_id of taskNode.task_parents_id;"></div>
+        <div #addSubtaskContainer></div>
       </div>
     </div>
 
     <!-- task children -->
-    <div *ngIf="!(this.taskNode.task_info.show_child == false) && showChildren">
+    <div *ngIf="!(this.taskNode.task_info.show_childs == false) && showChildren">
       <div *ngFor="let childrenNode of taskNode.task_children">
-        <app-task-tree-item [taskNode]="childrenNode" ></app-task-tree-item>
+        <app-task-tree-item [taskNode]="childrenNode"></app-task-tree-item>
       </div>
     </div>
   `,
@@ -46,22 +53,30 @@ import { Task } from '../../model/task';
 })
 export class TaskTreeItemComponent implements OnInit{
   @Input() taskNode!: TaskNode;
+  @ViewChild('addSubtaskContainer', { read: ViewContainerRef }) addSubtaskContainer!: ViewContainerRef;
+
   constructor(private taskService: TodoListService,
               private renderer: Renderer2,
-              private el: ElementRef){}
+              private el: ElementRef,
+              private resolver: ComponentFactoryResolver, 
+              private container: ViewContainerRef
+              ){}
 
   ngOnInit(){
-    try {if(this.taskNode.task_info.show_child != undefined){
-      this.showChildren = this.taskNode.task_info.show_child;
+    try {if(this.taskNode.task_info.show_childs != undefined){
+      this.showChildren = this.taskNode.task_info.show_childs;
     }} catch(e){}
   }
-  
+   
   showChildren: boolean = true;
-  sourceSlot: any;
+  sourceSlot: any; // 保存drag的起始位置
+  exsitAddSubTask: boolean = false; // flag 避免重复创建AddSubtaskComponent
+  AddSubtaskComponentRef!: ComponentRef<AddSubtaskComponent>; // 保留对动态创建组件的引用
+
 
   collapse(){
     this.showChildren = !this.showChildren;
-    this.taskService.updateTaskField(this.taskNode.task_info.id, {"show_child" : this.showChildren});
+    this.taskService.updateTaskField(this.taskNode.task_info.id, {"show_childs" : this.showChildren});
   }
 
   async dropToChangeParent(event: CdkDragDrop<string[]>) {
@@ -69,7 +84,7 @@ export class TaskTreeItemComponent implements OnInit{
     const source_task_ID = event.item.data.id; // ID of the dragged item (event.item.element.nativeElement.id)
     
     // get old parent ID
-    const old_parent_ID = event.item.data.parent_task;
+    const old_parent_ID = event.item.data.parent_id;
 
     // get new parent ID
     let new_parent_Id = "";
@@ -90,14 +105,14 @@ export class TaskTreeItemComponent implements OnInit{
   }
   
   async checkNewParentNotItsOwnChild(parent_id: string, source_id: string): Promise <boolean>{
-    if(parent_id != ""){
+    if(typeof(parent_id) === "string" && parent_id !== ""){
       // get parent task info
       let parent_task: Task = await this.taskService.getTask(parent_id);
       // check if parent is the source
       if(parent_task.id == source_id){
         return false;
       }
-      return this.checkNewParentNotItsOwnChild(parent_task.parent_task, source_id);
+      return this.checkNewParentNotItsOwnChild(parent_task.parent_id, source_id);
     }
     return true;
 
@@ -111,41 +126,41 @@ export class TaskTreeItemComponent implements OnInit{
       if(await this.checkNewParentNotItsOwnChild(new_parent_Id, source_task_ID)){
 
         // find old parent
-        if(old_parent_ID != ""){
+        if(typeof(old_parent_ID) === "string" && old_parent_ID !== ""){
           // get old parent task info
           let old_parent_task: Task = await this.taskService.getTask(old_parent_ID);
 
           // remove source id from old parent
           if(old_parent_task.id == old_parent_ID){
-            old_parent_task.child_tasks = old_parent_task.child_tasks.filter(task_id => task_id !== source_task_ID);
-            await this.taskService.updateTaskField(old_parent_task.id, {"child_tasks": old_parent_task.child_tasks});
+            old_parent_task.childs_id = old_parent_task.childs_id.filter(task_id => task_id !== source_task_ID);
+            await this.taskService.updateTaskField(old_parent_task.id, {"childs_id": old_parent_task.childs_id});
           }
         }
 
         // assign id to new parent
         let new_parent_cat = null;
-        if(new_parent_Id != ""){
+        if(typeof(new_parent_Id) === "string" && new_parent_Id !== ""){
           // get new parent task info
           let new_parent_task: Task = await this.taskService.getTask(new_parent_Id);
 
           // get new parent cat
-          new_parent_cat = new_parent_task.cat;
+          new_parent_cat = new_parent_task.cat_id;
 
           // add id to new parent's children
           if(new_parent_task.id == new_parent_Id){
-            new_parent_task.child_tasks.push(source_task_ID);
-            await this.taskService.updateTaskField(new_parent_task.id, {"child_tasks": new_parent_task.child_tasks});
+            new_parent_task.childs_id.push(source_task_ID);
+            await this.taskService.updateTaskField(new_parent_task.id, {"childs_id": new_parent_task.childs_id});
           }
         }
 
         // assign new parent id & cat
         let updated_task: Task = await this.taskService.getTask(source_task_ID);
-        if(updated_task.id == source_task_ID){
-          updated_task.parent_task = new_parent_Id;
+        if(updated_task.id === source_task_ID){
+          updated_task.parent_id = new_parent_Id;
           if(new_parent_cat){
-            await this.taskService.updateTaskField(updated_task.id, {"parent_task": new_parent_Id, "cat": new_parent_cat});
+            await this.taskService.updateTaskField(updated_task.id, {"parent_id": new_parent_Id, "cat_id": new_parent_cat});
           }else{
-            await this.taskService.updateTaskField(updated_task.id, {"parent_task": new_parent_Id});
+            await this.taskService.updateTaskField(updated_task.id, {"parent_id": new_parent_Id});
           }
         }
       }
@@ -252,5 +267,41 @@ export class TaskTreeItemComponent implements OnInit{
     // hide task original slot
     this.renderer.setStyle(this.sourceSlot, 'background-color', '');
     this.sourceSlot = null;
+  }
+
+  // insert add sub task component
+  insertAddSubtaskComponent(taskInfo: Task) {
+
+    // check if component already created
+    if(this.exsitAddSubTask == false){
+
+      // mark component exsited
+      this.exsitAddSubTask = true;
+
+      // 获取要动态插入的组件的工厂
+      const factory = this.resolver.resolveComponentFactory(AddSubtaskComponent);
+
+      // 创建组件实例，并设置输入属性
+      this.AddSubtaskComponentRef = this.addSubtaskContainer.createComponent(factory);
+      this.AddSubtaskComponentRef.instance.parent_task_info = taskInfo;
+
+       // 订阅组件的输出事件
+      this.AddSubtaskComponentRef.instance.clickedOutside.subscribe(() => {
+        // 在这里执行输出事件触发时的操作，例如处理新添加的子任务
+        console.log('click out of input box');
+        this.deleteComponent();
+      });
+    }
+  }
+
+  // delete add sub task component
+  deleteComponent() {
+    // 检查组件引用是否存在
+    if (this.AddSubtaskComponentRef) {
+      // 销毁组件
+      this.AddSubtaskComponentRef.destroy();
+      // 重置flag - exsitAddSubTask
+      this.exsitAddSubTask = false;
+    }
   }
 }
