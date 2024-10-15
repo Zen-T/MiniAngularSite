@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Task } from '../../model/task';
 import { TodoListService } from 'src/app/core/service/todo-list.service';
 
@@ -115,7 +115,7 @@ import { TodoListService } from 'src/app/core/service/todo-list.service';
     </li>
 `
 })
-export class TaskItemComponent implements OnInit{
+export class TaskItemComponent implements OnInit, AfterViewChecked{
   @Input() task!: Task;
   @Output() show_add_subtask = new EventEmitter<boolean>();
   @ViewChild('rollableTaskName', {static: false}) rollableTaskName!: ElementRef;
@@ -134,7 +134,6 @@ export class TaskItemComponent implements OnInit{
     private taskService: TodoListService,
     ){}
 
-
   ngOnInit(){
     // set looks for due date picker buttom
     this.setDueButtomReminderAndcolor();
@@ -148,6 +147,13 @@ export class TaskItemComponent implements OnInit{
 
   ngAfterViewInit() {
     this.checkTextOverflow();
+  }
+
+  ngAfterViewChecked(): void {
+    // reset overflow text class
+    if(this.rollableTaskName){
+      this.checkTextOverflow();
+    }
   }
 
   sup() {
