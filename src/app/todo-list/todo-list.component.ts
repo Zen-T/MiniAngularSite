@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { onIdTokenChanged } from 'firebase/auth';
 import { AuthFirebaseService } from '../core/service/auth-firebase.service';
 import { FirestoreService } from '../core/service/firestore.service';
@@ -19,7 +19,7 @@ import { combineLatest } from 'rxjs';
   <div class="todoApp-container">
 
     <!-- category picker (left side of the app) -->
-    <div *ngIf="catsDict" class="category-container">
+    <div *ngIf="catsDict" class="category-container" #categoryContainer>
       <app-cats-picker (cat_selection)="selectCat($event)" (state_selection)="selectState($event)" [catsDict]="catsDict" #appCatsPicker></app-cats-picker>
     </div>
     
@@ -42,9 +42,13 @@ import { combineLatest } from 'rxjs';
   styles: [
   ]
 })
-export class TodoListComponent implements AfterViewInit{
+export class TodoListComponent implements AfterViewInit, AfterViewChecked {
   @ViewChild('appCatsPicker') appCatsPicker!: CatsPickerComponent;
   @ViewChild('appDatePickerHori') appDatePickerHori!: DatePickerHoriComponent;
+  @ViewChild('categoryContainer', { static: false }) categoryContainer!: ElementRef;
+  
+  // flag for resizeable handler init
+  private isResizeHandlerInitialized = false;
 
   // init as undefine, wait for children componment to set these vars
   cat_selection!: string;
@@ -63,7 +67,8 @@ export class TodoListComponent implements AfterViewInit{
   constructor(
     private taskService: TodoListService,
     private authService: AuthFirebaseService,
-    private firestoreService: FirestoreService){
+    private firestoreService: FirestoreService,
+    ){
   }
 
   // after view init
@@ -97,6 +102,20 @@ export class TodoListComponent implements AfterViewInit{
         this.tasksArr = [];
       }
     });
+   
+    // try to init resizeable cat picker
+    if (this.categoryContainer) {
+      this.initResizableContainer();
+      this.isResizeHandlerInitialized = true;
+    }
+  }
+
+  ngAfterViewChecked() {
+    // init resizeable cat picker if fail to init in `ngAfterViewInit`
+    if (!this.isResizeHandlerInitialized && this.categoryContainer) {
+      this.initResizableContainer();
+      this.isResizeHandlerInitialized = true;
+    }
   }
 
   // after componment destory
@@ -222,4 +241,36 @@ export class TodoListComponent implements AfterViewInit{
     // update tasks array
     this.setTasksListener();
   }
+
+  // init resizable cat picker
+  initResizableContainer() {
+    const container = this.categoryContainer.nativeElement as HTMLElement;
+    let isResizing = false;
+
+    container.addEventListener('mousedown', (event: MouseEvent) => {
+      // drug right side of the element (15px)
+      if (event.offsetX > container.clientWidth - 15) {
+        isResizing = true;
+        document.body.style.cursor = 'ew-resize';
+      }
+    });
+
+    document.addEventListener('mousemove', (event: MouseEvent) => {
+      if (!isResizing) return;
+
+      // get updated width
+      const newWidth = event.clientX - container.getBoundingClientRect().left;
+      if (newWidth > 10 && newWidth < window.innerWidth * 0.5) {
+        container.style.width = `${newWidth}px`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = 'default';
+      }
+    });
+  }
+  
 }

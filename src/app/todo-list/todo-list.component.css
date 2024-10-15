@@ -9,6 +9,23 @@
   width: 13%;
   background-color: rgba(127, 255, 212, 0.548);
   overflow: auto; /* 启用滚动条，只有在内容溢出时才显示滚动条 */
+  /* resize: horizontal; 允许水平方向上的调整大小 */
+  position: relative; /* 设置定位，以便于伪元素定位 */
+  border-right: 2px solid #ccc; /* 添加边界以明显表示可以调整大小 */
+  min-width: 1%;
+  max-width: 50%;
+}
+
+/* 添加拖拽手柄 */
+.category-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px; /* 控制手柄宽度 */
+  height: 100%;
+  cursor: ew-resize; /* 设置鼠标悬浮时的图标为东西方向调整大小的图标 */
+  background-color: rgba(0, 0, 0, 0.1); /* 给手柄添加一点颜色以便于观察 */
 }
 
 .todoList-container{
@@ -26,7 +43,7 @@
 }
 
 .datePicker-container{
-  height: 12%;
+  height: 8%;
   background-color: rgba(137, 136, 210, 0.747)
 }
 
