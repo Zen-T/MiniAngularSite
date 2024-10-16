@@ -321,7 +321,7 @@ export class CatsPickerComponent implements OnInit, AfterViewInit{
     <section class="dialog-body">
       <div class="dialog-content" mat-dialog-content>{{data.content}}</div>
       <div class="dialog-type-key" *ngIf="data.key!=''" mat-dialog-content>Proceed to delete by typing: <strong>{{data.key}}</strong></div>
-      <div class="dialog-type-key-inpu-container"><input class="dialog-type-key-inpu" *ngIf="data.key!=''" matInput [(ngModel)]="userKeyInput" placeholder="{{data.key}}"></div>
+      <div class="dialog-type-key-input-container"><input class="dialog-type-key-input" *ngIf="data.key!=''" matInput [(ngModel)]="userKeyInput" placeholder="{{data.key}}"></div>
     </section>
     <div class="dialog-action" mat-dialog-actions align="end">
       <button *ngFor="let button of data.buttons" mat-button [mat-dialog-close]="button.name" cdkFocusInitial style="background-color: {{button.color}}">{{button.name}}</button>
